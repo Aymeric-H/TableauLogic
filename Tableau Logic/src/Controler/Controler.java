@@ -144,6 +144,10 @@ public class Controler {
 		
 	}
 	
+	/*
+	 * When the user clicks on the button of the first exercise it removes the panel of the main menu
+	 * and replaces it with the first exercise panel
+	 */
 	public class ActionExerciseOne extends AbstractAction implements Observer {
 		
 		public ActionExerciseOne() {
@@ -170,6 +174,10 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user clicks on the button of the second exercise it removes the panel of the main menu
+	 * and replaces it with the second exercise panel
+	 */
 	public class ActionExerciseTwo extends AbstractAction implements Observer {
 		
 		public ActionExerciseTwo() {
@@ -196,6 +204,10 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user clicks on the button of the third exercise it removes the panel of the main menu
+	 * and replaces it with the third exercise panel
+	 */
 	public class ActionExerciseThree extends AbstractAction implements Observer {
 		
 		public ActionExerciseThree() {
@@ -223,6 +235,10 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user clicks on the button of the fourth exercise it removes the panel of the main menu
+	 * and replaces it with the fourth exercise panel
+	 */
 	public class ActionExerciseFour extends AbstractAction implements Observer {
 		
 		public ActionExerciseFour() {
@@ -250,6 +266,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user click on the "Go back" button it makes him go back to the main menu
+	 */
 	public class ActionGoBack extends AbstractAction implements Observer {
 		
 		public ActionGoBack() {
@@ -272,6 +291,9 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 */
 	public class ActionDealWithExpressions extends AbstractAction implements Observer {
 		
 		public ActionDealWithExpressions() {
@@ -312,6 +334,9 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 */
 	public class ActionDealWithExpressionsExTwo extends AbstractAction implements Observer {
 		
 		public ActionDealWithExpressionsExTwo() {
@@ -349,7 +374,10 @@ public class Controler {
 			System.out.println("UPDATE");
 		}	
 	}
-		
+	
+	/*
+	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 */
 	public class ActionDealWithExpressionsExThree extends AbstractAction implements Observer {
 		
 		public ActionDealWithExpressionsExThree() {
@@ -410,6 +438,9 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 */
 	public class ActionDealWithExpressionsExFour extends AbstractAction implements Observer {
 		
 		public ActionDealWithExpressionsExFour() {
@@ -452,6 +483,9 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * Listener which allows to select a Set in the tree shown
+	 */
 	public class SetSelected implements MouseListener {
 		
 		public SetSelected(){
@@ -459,25 +493,21 @@ public class Controler {
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -500,6 +530,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * Listener which allows to select one specific operation to do in aselected Set
+	 */
 	public class ButtonClicked implements MouseListener{
 		
 		PopupView popup;
@@ -533,34 +566,33 @@ public class Controler {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 		
 	}
 	
+	/*
+	 * When the user click on the button "Reset" it resets everything related to the current exercise
+	 */
 	public class ActionReset extends AbstractAction implements Observer {
 		
 		public ActionReset() {
@@ -591,6 +623,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user click on the button "Reset" it resets everything related to the current exercise
+	 */
 	public class ActionResetExTwo extends AbstractAction implements Observer {
 		
 		public ActionResetExTwo() {
@@ -621,6 +656,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user click on the button "Reset" it resets everything related to the current exercise
+	 */
 	public class ActionResetExThree extends AbstractAction implements Observer {
 		
 		public ActionResetExThree() {
@@ -652,6 +690,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * When the user click on the button "Reset" it resets everything related to the current exercise
+	 */
 	public class ActionResetExFour extends AbstractAction implements Observer {
 		
 		public ActionResetExFour() {
@@ -684,6 +725,9 @@ public class Controler {
 		}
 	}
 	
+	/*
+	 * Action which allows the user to undo his last action (for the exercise four)
+	 */
 	public class ActionUndoExFour extends AbstractAction implements Observer{
 		
 		public ActionUndoExFour(){
@@ -714,6 +758,9 @@ public class Controler {
 		
 	}
 	
+	/*
+	 * Action which allows the user to develop another Set of the current Tableau considering the resolution mode selected
+	 */
 	public class ActionNextStep extends AbstractAction implements Observer {
 		
 		public ActionNextStep() {
