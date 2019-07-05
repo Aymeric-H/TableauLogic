@@ -113,6 +113,11 @@ public class Set {
 		return res + Math.max(first, second);
 	}
 	
+	/*
+	 * Function which returns true if the formula is an
+	 * alpha-rule
+	 * formula => the Formula to check
+	 */
 	public boolean isAlphaRule(Formula formula){
 		if ((formula.value == true && (formula.name.equals("&") || formula.name.equals("~")))
 				|| (formula.value == false && (formula.name.equals("v") || formula.name.equals("->") || formula.name.equals("~")))) {
@@ -123,6 +128,11 @@ public class Set {
 		}
 	}
 	
+	/*
+	 * Function which returns true if the formula is a
+	 * beta-rule
+	 * formula => the Formula to check
+	 */
 	public boolean isBetaRule(Formula formula){
 		if ((formula.value == true && (formula.name.equals("v") || formula.name.equals("->")))
 				|| (formula.value == false && formula.name.equals("&"))) {
@@ -262,6 +272,11 @@ public class Set {
 		}
 	}
 	
+	/*
+	 * Function which allows to apply the rule of the current Set
+	 * which has been selected by the user
+	 * index => the index of the operator selected
+	 */
 	public void applyRule(int index) throws Exception{
 		if (!this.contradiction()) {
 			Formula formula = this.formulas.get(index);
@@ -338,6 +353,9 @@ public class Set {
 		return false;
 	}
 	
+	/*
+	 * Function which returns true if the current Set has only Literals 
+	 */
 	public boolean allLiterals(){
 		for (Formula formula : this.formulas) {
 			if (!(formula instanceof Literal)) {
@@ -354,6 +372,10 @@ public class Set {
 		return this.contradiction;
 	}
 	
+	/*
+	 * Function which allows to update the contradiction for
+	 * the current Set
+	 */
 	public void updateContradiction(){
 		if (this.firstChild != null) {
 			this.firstChild.updateContradiction();

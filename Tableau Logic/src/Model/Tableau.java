@@ -53,6 +53,11 @@ public class Tableau {
 		}
 	}
 	
+	/*
+	 * Function which allows to set the resolution mode
+	 * for the Tableau
+	 * mode => the mode of resolutnio selected by the user
+	 */
 	public void setDevMode(int mode){
 		this.devMode = mode;
 	}
@@ -107,6 +112,10 @@ public class Tableau {
 		}
 	}
 	
+	/*
+	 * Function which allows to update the contradictions for
+	 * each Set of the Tableau
+	 */
 	public void updateContradictions(){
 		this.root.updateContradiction();
 	}
@@ -145,6 +154,12 @@ public class Tableau {
 		return this.root;
 	}
 	
+	/*
+	 * function which allows to add a Set and its Coordinates to
+	 * the accessibleSet list
+	 * coordinates => the Coordinates of the Set
+	 * set => the Set to add
+	 */
 	public void addAccessibleSet(Coordinates coordinates, Set set){
 		boolean alreadyIn = false;
 		for (Coordinates coords : this.accessibleSets.keySet()) {
@@ -157,6 +172,10 @@ public class Tableau {
 		}
 	}
 	
+	/*
+	 * Function which returns the Coordinates of the Set clicked on
+	 * x, y => the coordinates of the click
+	 */
 	public Coordinates getCoordinates(int x, int y){
 		for (Coordinates coords : this.accessibleSets.keySet()) {
 			if (x >= coords.getX1() && x <= coords.getX2() && y >= coords.getY1() && y <= coords.getY2()) {
@@ -166,6 +185,10 @@ public class Tableau {
 		return null;
 	}
 	
+	/*
+	 * Function which returns the set selected
+	 * coordinates => the Coordinates of the selected Set
+	 */
 	public Set getSetSelected(Coordinates coordinates){
 		for (Coordinates coords : this.accessibleSets.keySet()) {
 			if (coords != null && coordinates != null && coords.equals(coordinates)) {
@@ -175,6 +198,11 @@ public class Tableau {
 		return null;
 	}
 	
+	/*
+	 * Function which apply the rule selected for the Set clicked on
+	 * coords => the Coordinates of the click
+	 * index => index of the operator selected
+	 */
 	public void applyRuleForThisSet(Coordinates coords, int index) throws Exception{
 		try {
 			Set set  = this.getSetSelected(coords);
@@ -184,6 +212,10 @@ public class Tableau {
 		}
 	}
 	
+	/*
+	 * Function which apply the right rule for the clicked on Set
+	 * x, y => the coordinates of the click
+	 */
 	public Set applyRuleForThisSet(int x, int y){
 		for (Coordinates coords : this.accessibleSets.keySet()) {
 			if (x >= coords.getX1() && x <= coords.getX2() && y >= coords.getY1() && y <= coords.getY2()) {
@@ -196,6 +228,10 @@ public class Tableau {
 		return null;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
 	public Tableau clone(){
 		Tableau tableau = new Tableau();
 		HashMap<Coordinates, Set> accessibleSets = new HashMap<Coordinates, Set>();
