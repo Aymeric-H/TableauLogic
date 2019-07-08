@@ -392,12 +392,13 @@ public class Set {
 		}
 	}
 	
-	public HashMap<String, Integer> getOperators(){
-		HashMap<String, Integer> operatorsMap = new HashMap<String, Integer>();
+	public HashMap<Integer, String> getOperators(){
+		HashMap<Integer, String> operatorsMap = new HashMap<Integer, String>();
 		int index = 0;
 		for (Formula formula : this.formulas) {
 			if (! (formula instanceof Literal)) {
-				operatorsMap.put(formula.name, index);
+				operatorsMap.put(index, formula.name);
+				System.out.println(operatorsMap);
 			}
 			index ++;
 		}
