@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -17,10 +18,10 @@ import javax.swing.JPanel;
 public class PopupView extends JFrame{
 
 	String set;
-	Set<String> operators;
+	Collection<String> operators;
 	public ArrayList<JButton> buttons;
 	
-	public PopupView(String set, Set<String> operators){
+	public PopupView(String set, Collection<String> operators){
 		this.set = set;
 		this.operators = operators;
 		this.buttons = new ArrayList<JButton>();

@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
@@ -516,11 +517,13 @@ public class Controler {
 			Coordinates coords = tableau.getCoordinates(e.getX(), e.getY());
 			Set set = tableau.getSetSelected(coords);
 			if (set != null && !set.allLiterals()) {
-				System.out.println(coords);
-				HashMap<String, Integer> operatorsMap = set.getOperators();
-				popup = new PopupView(set.toString(), operatorsMap.keySet());
+				HashMap<Integer, String> operatorsMap = set.getOperators();
+				popup = new PopupView(set.toString(), operatorsMap.values());
+				Object[] indexList = operatorsMap.keySet().toArray();
+				int tmp = 0;
 				for (JButton button : popup.buttons) {
-					button.addMouseListener(new ButtonClicked(popup, operatorsMap.get(button.getText()), coords));
+					button.addMouseListener(new ButtonClicked(popup, (int) indexList[tmp], coords));
+					tmp ++;
 				}
 				popup.setVisible(true);
 			}
