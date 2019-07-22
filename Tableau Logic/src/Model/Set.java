@@ -1,6 +1,7 @@
 package Model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Set {
@@ -321,6 +322,49 @@ public class Set {
 		}
 	}
 	
+	
+	/*
+	 * Function which allows to simulate the application of the rule selected
+	 * by the user
+	 * index => the index of the operator selected
+	 */
+	public Set simulateRule(int index) throws Exception{
+		Set simulatedSet = this.clone();
+		try {
+			simulatedSet.applyRule(index);
+		} catch (Exception e) {
+			throw e;
+		}
+		return simulatedSet;
+	}
+	
+	/*
+	 * Function which allows to check if the user anticipated the result of the operator
+	 * chosen well
+	 * input => the anticipation of the user
+	 */
+	public boolean isAnticipationRight(String input) throws Exception{
+		//We remove the " { ... } " in the input
+		input = input.substring(2,input.length()-2);
+		ArrayList<String> inputFormulas = new ArrayList<String>(Arrays.asList(input.split(", ")));
+		ArrayList<String> simulatedSetFormulas = new ArrayList<String>(Arrays.asList(this.formulas.toString().substring(1, this.formulas.toString().length() - 1).split(", ")));
+		for (String formula : inputFormulas) {
+			if (formula.charAt(0) != 'T' && formula.charAt(0) != 'F') {
+				throw new Exception("Enter a valid value for your formula (T or F)");
+			}
+			boolean res = false;
+			for (String simulatedFormula : simulatedSetFormulas) {
+				if (formula.equals(simulatedFormula)) {
+					res = true;
+				}
+			}
+			if (!res) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	/*
 	 * Function which returns true if this Set and its children are valid
 	 */
@@ -392,19 +436,34 @@ public class Set {
 		}
 	}
 	
+	/*
+	 * Function which allows to get all the operators the user can choose to apply
+	 */
 	public HashMap<Integer, String> getOperators(){
 		HashMap<Integer, String> operatorsMap = new HashMap<Integer, String>();
 		int index = 0;
 		for (Formula formula : this.formulas) {
 			if (! (formula instanceof Literal)) {
-				operatorsMap.put(index, formula.name);
-				System.out.println(operatorsMap);
+				String operator = "";
+				if (formula.getValue()) {
+					operator += "T [ ";
+				}
+				else {
+					operator += "F [ ";
+				}
+				operator += formula.name + " ]";
+				operatorsMap.put(index, operator);
 			}
 			index ++;
 		}
 		return operatorsMap;
 	}
 	
+	/*
+	 * Function which allows to clone the current Set and to update the Tableau
+	 * which uses this Set
+	 * tableau => the Tableau which uses the Set to clone
+	 */
 	public Set clone(Tableau tableau){
 		ArrayList<Formula> formulas = new ArrayList<Formula>();
 		for (Formula f : this.formulas) {
@@ -427,6 +486,27 @@ public class Set {
 			}
 		}
 		return set;
+	}
+	
+	/*
+	 * Function which allows to clone a Set
+	 */
+	public Set clone(){
+		ArrayList<Formula> formulas = new ArrayList<Formula>();
+		for (Formula f : this.formulas) {
+			formulas.add(f.clone());
+		}
+		Set clonedSet = new Set(formulas);
+		clonedSet.contradiction = this.contradiction;
+		clonedSet.lastRuleApplied = new String(this.lastRuleApplied);
+		if (this.firstChild != null) {
+			clonedSet.firstChild = this.firstChild.clone();
+		}
+		if (this.secondChild != null) {
+			clonedSet.secondChild = this.secondChild.clone();
+		}
+		return clonedSet;
+		
 	}
 	
 	/*

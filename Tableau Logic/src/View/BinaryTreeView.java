@@ -1,6 +1,5 @@
 package View;
 import Model.*;
-import Model.Set;
 
 import javax.swing.*;
 import java.awt.*;

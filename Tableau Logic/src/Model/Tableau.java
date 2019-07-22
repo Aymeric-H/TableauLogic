@@ -213,6 +213,21 @@ public class Tableau {
 	}
 	
 	/*
+	 * Function which apply the rule selected for the Set clicked on
+	 * coords => the Coordinates of the click
+	 * index => index of the operator selected
+	 */
+	public Set simulateRuleForThisSet(Coordinates coords, int index) throws Exception{
+		try {
+			Set set  = this.getSetSelected(coords);
+			Set simulation = set.simulateRule(index);
+			return simulation;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	/*
 	 * Function which apply the right rule for the clicked on Set
 	 * x, y => the coordinates of the click
 	 */

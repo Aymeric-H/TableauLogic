@@ -28,13 +28,13 @@ import Model.Tableau;
 import Model.TreeMaker;
 import View.TableauView;
 import View.View;
-import View.PopupView;
+import View.PopupViewChoseOperator;
 
 public class Controler {
 
 	private Tableau tableau;
 	private View view;
-	private PopupView popup;
+	private PopupViewChoseOperator popup;
 	private Stack<Tableau> stepsStack;
 	
 	public Controler(Tableau tab){
@@ -307,8 +307,10 @@ public class Controler {
 			try {
 				tableau = new Tableau();
 				tableau.setRoot(new Set(expressions));
-				tableau.applyRules();
+				tableau.applyRule();
 				JPanel tabView = tableau.getView();
+				tabView.addMouseListener(new SetSelected());
+				
 				BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
 				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
 					view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
@@ -518,11 +520,11 @@ public class Controler {
 			Set set = tableau.getSetSelected(coords);
 			if (set != null && !set.allLiterals()) {
 				HashMap<Integer, String> operatorsMap = set.getOperators();
-				popup = new PopupView(set.toString(), operatorsMap.values());
+				popup = new PopupViewChoseOperator(set.toString(), operatorsMap.values());
 				Object[] indexList = operatorsMap.keySet().toArray();
 				int tmp = 0;
 				for (JButton button : popup.buttons) {
-					button.addMouseListener(new ButtonClicked(popup, (int) indexList[tmp], coords));
+					button.addMouseListener(new ChoseOperator(popup, (int) indexList[tmp], coords));
 					tmp ++;
 				}
 				popup.setVisible(true);
@@ -534,16 +536,16 @@ public class Controler {
 	}
 	
 	/*
-	 * Listener which allows to select one specific operation to do in aselected Set
+	 * Listener which allows to select one specific operation to do in a selected Set
 	 */
-	public class ButtonClicked implements MouseListener{
+	public class ChoseOperator implements MouseListener{
 		
-		PopupView popup;
+		PopupViewChoseOperator popup;
 		int index;
 		Coordinates coords;
 		
 		
-		public ButtonClicked(PopupView popup, int index, Coordinates coords){
+		public ChoseOperator(PopupViewChoseOperator popup, int index, Coordinates coords){
 			this.popup = popup;
 			this.index = index;
 			this.coords = coords;
@@ -553,11 +555,13 @@ public class Controler {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
-				stepsStack.push(tableau.clone());
-				view.undo.setEnabled(true);
-				tableau.applyRuleForThisSet(this.coords, this.index);
-				tableau.accessibleSets.remove(this.coords);
-				Controler.this.popup.dispose();
+				String chosenOperator = ((JButton)e.getSource()).getText();
+				this.popup.panelGeneral.remove(this.popup.panelOperator);
+				this.popup.panelGeneral.add(this.popup.panelResultAnticipation);
+				this.popup.labelInfo.setText(this.popup.labelInfo.getText() + chosenOperator);
+				this.popup.revalidate();
+				this.popup.repaint();
+				this.popup.checkAnticipation.addMouseListener(new CheckAnticipationOperatorResult(popup, index, coords));
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
@@ -589,7 +593,82 @@ public class Controler {
 		public void mouseReleased(MouseEvent e) {
 			
 		}
+		
+	}
+	
+	/*
+	 * Listener which allows the user to anticipate the result of the operation previously selected
+	 */
+	public class CheckAnticipationOperatorResult implements MouseListener{
 
+		PopupViewChoseOperator popup;
+		int index;
+		Coordinates coords;
+		
+		public CheckAnticipationOperatorResult(PopupViewChoseOperator popup, int index, Coordinates coords) {
+			this.popup = popup;
+			this.index = index;
+			this.coords = coords;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			try {
+				Set simulatedSet = tableau.simulateRuleForThisSet(coords, index);
+				boolean checked = false;
+				if (simulatedSet.getSecond() == null) {
+					if (!this.popup.inputTwo.getText().equals("")) {
+						JOptionPane.showMessageDialog(null, "Too many children anticipated !");
+					}
+					else{
+						checked = simulatedSet.getFirst().isAnticipationRight(this.popup.inputOne.getText());
+					}
+				}
+				else {
+					checked = simulatedSet.getFirst().isAnticipationRight(this.popup.inputOne.getText())
+					&& simulatedSet.getSecond().isAnticipationRight(this.popup.inputTwo.getText());
+				}
+				if (checked) {
+					stepsStack.push(tableau.clone());
+					view.undo.setEnabled(true);
+					tableau.applyRuleForThisSet(this.coords, this.index);
+					tableau.accessibleSets.remove(this.coords);
+					this.popup.dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Wrong Anticipation !");
+				}
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+			tableau.updateContradictions();
+			view.revalidate();
+			view.repaint();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	

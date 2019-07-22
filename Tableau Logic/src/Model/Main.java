@@ -98,7 +98,9 @@ public class Main {
 		try {
 			/*
 			 * Good example to show most of the cases :
-			 * T [ ( ~ Q v ~ R ) v ( T & ( ~ T v ( T & ~ T ) ) ) v ( ~ T v ~ ~ T ) ]
+			 * T [ ( ~ A v ~ B ) v ( C & ( ~ C v ( C & ~ C ) ) ) v ( ~ C v ~ ~ C ) ]
+			 * T [ A v B & ~ B ]
+			 * T [ ( ~ A v ~ B ) v ( C & ( ~ C v ( C & ~ C ) ) ) ], T [ A v B ]
 			 */
 			Tableau tab = new Tableau();
 			Controler controler = new Controler(tab);

@@ -78,11 +78,11 @@ public abstract class TwoFormulasOp extends Formula{
 			}
 		}
 		else if (this.formulaOne instanceof OneFormulaOp){
-			childOne = this.formulaOne.toString().substring(3, this.formulaOne.toString().length() - 2);
+			childOne = this.formulaOne.toString().substring(4, this.formulaOne.toString().length() - 2);
 		}
 		//Else it is a TwoFormulasOp
 		else{
-			childOne = "(" + this.formulaOne.toString().substring(3, this.formulaOne.toString().length() - 2) + ")";
+			childOne = "( " + this.formulaOne.toString().substring(4, this.formulaOne.toString().length() - 2) + " )";
 		}
 		if (this.formulaTwo == null) {
 			childTwo = null;
@@ -96,18 +96,17 @@ public abstract class TwoFormulasOp extends Formula{
 			}
 		}
 		else if (this.formulaTwo instanceof OneFormulaOp){
-			childTwo = this.formulaTwo.toString().substring(3, this.formulaTwo.toString().length() - 2);
+			childTwo = this.formulaTwo.toString().substring(4, this.formulaTwo.toString().length() - 2);
 		}
 		//Else it is a TwoFormulasOp
 		else{
-			childTwo = "(" + this.formulaTwo.toString().substring(3, this.formulaTwo.toString().length() - 2) + ")";
+			childTwo = "( " + this.formulaTwo.toString().substring(4, this.formulaTwo.toString().length() - 2) + " )";
 		}
 		if (this.value) {
-			return "T[ " + childOne + " " + this.name +" " + childTwo + " ]";
+			return "T [ " + childOne + " " + this.name +" " + childTwo + " ]";
 		}
 		else{
-			return "F[ " + childOne + " " + this.name + " " + childTwo + " ]";
+			return "F [ " + childOne + " " + this.name + " " + childTwo + " ]";
 		}
 	}
-
 }

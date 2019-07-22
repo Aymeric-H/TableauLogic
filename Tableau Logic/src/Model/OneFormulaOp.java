@@ -62,13 +62,13 @@ public abstract class OneFormulaOp extends Formula{
 			}
 		}
 		else{
-			child = "(" + this.formula.toString().substring(3,this.formula.toString().length() - 2) + ")";
+			child = "( " + this.formula.toString().substring(4,this.formula.toString().length() - 2) + " )";
 		}
 		if (this.value) {
-			return "T[ " + this.name + child  + " ]";
+			return "T [ " + this.name + child  + " ]";
 		}
 		else{
-			return "F[ " + this.name + child + " ]";
+			return "F [ " + this.name + child + " ]";
 		}
 	}
 	

@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -148,6 +149,7 @@ public class View extends JFrame{
 		JLabel inputLabelOne = new JLabel("Input : ");
 		this.inputExpressionsExOne = new JTextField();
 		this.inputExpressionsExOne.setPreferredSize(new Dimension(500, 27));
+		this.inputExpressionsExOne.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExOne = new JButton();
 		this.resetExOne = new JButton();
 		JPanel exerciseOneTop = new JPanel(new FlowLayout());
@@ -166,6 +168,7 @@ public class View extends JFrame{
 		JLabel inputLabelTwo = new JLabel("Input : ");
 		this.inputExpressionsExTwo = new JTextField();
 		this.inputExpressionsExTwo.setPreferredSize(new Dimension(500, 27));
+		this.inputExpressionsExTwo.setMargin(new Insets(5, 2, 2, 2));
 		this.dealExpressionsExTwo = new JButton();
 		this.resetExTwo = new JButton();
 		JPanel exerciseTwoTop = new JPanel(new FlowLayout());
@@ -184,6 +187,7 @@ public class View extends JFrame{
 		JLabel inputLabelThree = new JLabel("Input : ");
 		this.inputExpressionsExThree = new JTextField();
 		this.inputExpressionsExThree.setPreferredSize(new Dimension(500, 27));
+		this.inputExpressionsExThree.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExThree = new JButton();
 		this.resetExThree = new JButton();
 		this.modeOneStep = new JRadioButton("One Step");
@@ -215,6 +219,7 @@ public class View extends JFrame{
 		JLabel inputLabelFour = new JLabel("Input : ");
 		this.inputExpressionsExFour = new JTextField();
 		this.inputExpressionsExFour.setPreferredSize(new Dimension(500, 27));
+		this.inputExpressionsExFour.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExFour = new JButton();
 		this.resetExFour = new JButton();
 		this.undo = new JButton();

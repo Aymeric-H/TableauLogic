@@ -155,7 +155,7 @@ public class TableauView<E> extends JPanel {
     protected void paintComponent(Graphics g) {
     	//clears the background
     	super.paintComponent(g);
-        int width = getWidth()*95/100;
+        int width = getWidth()*100/95;
         int height = getHeight()*95/100;
         maxHeight = Math.max(set.getHeight(), maxHeight);
         int treeHeight = maxHeight;

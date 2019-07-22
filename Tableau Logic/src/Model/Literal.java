@@ -50,10 +50,10 @@ public class Literal extends Formula{
 	 */
 	public String toString(){
 		if (this.value) {
-			return "T[" + this.name + "]";
+			return "T [ " + this.name + " ]";
 		}
 		else{
-			return "F[" + this.name + "]";
+			return "F [ " + this.name + " ]";
 		}
 	}
 	
