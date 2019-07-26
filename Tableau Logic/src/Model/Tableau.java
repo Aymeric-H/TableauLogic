@@ -68,6 +68,7 @@ public class Tableau {
 	 */
 	public void applyRules(){
 		this.root.applyRules();
+		this.setsToDevelop.remove(0);
 	}
 	
 	/*
@@ -101,7 +102,7 @@ public class Tableau {
 	}
 	
 	/*
-	 * Function which tells if there is still rule(s) to apply
+	 * Function which tells if there are still rules to apply
 	 */
 	public boolean remainingRules(){
 		if (this.setsToDevelop.size() == 0) {

@@ -36,12 +36,14 @@ public class View extends JFrame{
 	public JButton exerciseTwo;
 	public JButton exerciseThree;
 	public JButton exerciseFour;
+	public JButton exerciseFive;
 	public JPanel exercisesPanel;
 	
 	public JPanel panelExerciseOne;
 	public JPanel panelExerciseTwo;
 	public JPanel panelExerciseThree;
 	public JPanel panelExerciseFour;
+	public JPanel panelExerciseFive;
 	
 	public JTextField inputExpressionsExOne;
 	public JButton dealExpressionsExOne;
@@ -68,6 +70,11 @@ public class View extends JFrame{
 	public JButton resetExFour;
 	public JButton undo;
 	public JButton goBackExFour;
+	
+	public JTextField inputExpressionsExFive;
+	public JButton dealExpressionsExFive;
+	public JButton resetExFive;
+	public JButton goBackExFive;
 	
 	public View(){
 		
@@ -131,6 +138,8 @@ public class View extends JFrame{
 		this.exerciseThree.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.exerciseFour = new JButton();
 		this.exerciseFour.setAlignmentX(Component.CENTER_ALIGNMENT);
+		this.exerciseFive = new JButton();
+		this.exerciseFive.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		this.exercisesPanel = new JPanel();
 		this.exercisesPanel.setLayout(new BoxLayout(this.exercisesPanel, BoxLayout.Y_AXIS));
@@ -138,6 +147,7 @@ public class View extends JFrame{
 		this.exercisesPanel.add(exerciseTwo);
 		this.exercisesPanel.add(exerciseThree);
 		this.exercisesPanel.add(exerciseFour);
+		this.exercisesPanel.add(exerciseFive);
 		
 		
 		//Main panel => where the exercises are set
@@ -234,6 +244,26 @@ public class View extends JFrame{
 		this.panelExerciseFour = new JPanel(new BorderLayout());
 		panelExerciseFour.add(exerciseFourTop, BorderLayout.NORTH);
 		panelExerciseFour.add(goBackExFour,BorderLayout.SOUTH);
+		
+		
+		//Exercise 5
+		JLabel inputLabelFive = new JLabel("Input : ");
+		this.inputExpressionsExFive = new JTextField();
+		this.inputExpressionsExFive.setPreferredSize(new Dimension(500, 27));
+		this.inputExpressionsExFive.setMargin(new Insets(2, 5, 2, 5));
+		this.dealExpressionsExFive = new JButton();
+		this.resetExFive = new JButton();
+		JPanel exerciseFiveTop = new JPanel(new FlowLayout());
+		exerciseFiveTop.add(inputLabelOne);
+		exerciseFiveTop.add(this.inputExpressionsExFive);
+		exerciseFiveTop.add(this.dealExpressionsExFive);
+		exerciseFiveTop.add(this.resetExFive);
+		this.goBackExFive = new JButton();
+				
+		this.panelExerciseFive = new JPanel(new BorderLayout());
+		panelExerciseFive.add(exerciseFiveTop, BorderLayout.NORTH);
+		panelExerciseFive.add(goBackExFive,BorderLayout.SOUTH);
+		
 		
 		
 		this.setLayout(new BorderLayout());

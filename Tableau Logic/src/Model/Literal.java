@@ -40,9 +40,18 @@ public class Literal extends Formula{
 		return this;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see Model.Formula#clone()
+	 */
 	public Formula clone(){
 		return new Literal(this.name, this.value);
 	}
+	
+	public boolean evaluate(){
+		return this.value;
+	}
+	
 	
 	/*
 	 * (non-Javadoc)

@@ -62,4 +62,8 @@ public class Negation extends OneFormulaOp{
 		return formulas;
 	}
 	
+	public boolean evaluate(){
+		return !this.formula.evaluate();
+	}
+	
 }

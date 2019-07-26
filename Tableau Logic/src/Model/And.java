@@ -62,5 +62,10 @@ public class And extends TwoFormulasOp{
 		}
 		return listRes;
 	}
+
+	@Override
+	public boolean evaluate() {
+		return this.formulaOne.evaluate() && this.formulaTwo.evaluate();
+	}
 	
 }

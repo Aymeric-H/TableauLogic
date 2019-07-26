@@ -26,8 +26,12 @@ import Model.Coordinates;
 import Model.Set;
 import Model.Tableau;
 import Model.TreeMaker;
+import Model.TruthTable;
 import View.TableauView;
+import View.TruthTableView;
 import View.View;
+import View.CorrectTruthTableView;
+import View.OneTruthTableLineView;
 import View.PopupViewChoseOperator;
 
 public class Controler {
@@ -64,7 +68,7 @@ public class Controler {
 		this.view.resetExOne.setAction(actionReset);
 		
 		ActionGoBack actionGoBack = new ActionGoBack();
-		this.view.goBackExOne.setAction(actionGoBack);		
+		this.view.goBackExOne.setAction(actionGoBack);
 		
 		
 		//Exercise 2
@@ -141,7 +145,30 @@ public class Controler {
 		this.view.undo.setAction(actionUndoExFour);
 				
 		ActionGoBack actionGoBackExFour = new ActionGoBack();
-		this.view.goBackExFour.setAction(actionGoBackExFour);	
+		this.view.goBackExFour.setAction(actionGoBackExFour);
+		
+		//Exercise 5
+		
+		ActionExerciseFive actionExerciseFive = new ActionExerciseFive();
+		this.view.exerciseFive.setAction(actionExerciseFive);
+		
+		this.view.inputExpressionsExFive.addKeyListener(new KeyAdapter() {
+		       @Override
+		       public void keyPressed(KeyEvent e) {
+		           if(e.getKeyCode() == KeyEvent.VK_ENTER){
+		               view.dealExpressionsExFive.doClick();
+		           }
+		       }
+		});
+				
+		ActionDealWithExpressionsExFive actionDealWithExpressionsExFive = new ActionDealWithExpressionsExFive();
+		this.view.dealExpressionsExFive.setAction(actionDealWithExpressionsExFive);
+		
+		ActionResetExFive actionResetExFive = new ActionResetExFive();
+		this.view.resetExFive.setAction(actionResetExFive);
+		
+		ActionGoBack actionGoBackExFive = new ActionGoBack();
+		this.view.goBackExFive.setAction(actionGoBackExFive);
 		
 	}
 	
@@ -267,8 +294,34 @@ public class Controler {
 		}
 	}
 	
+	public class ActionExerciseFive extends AbstractAction implements Observer {
+		
+		public ActionExerciseFive() {
+			this.putValue(Action.NAME, "Exercise 5");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("APPUYE");
+			BorderLayout layout = (BorderLayout)view.main.getLayout();
+			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			view.main.add(view.panelExerciseFive, BorderLayout.CENTER);
+			view.inputExpressionsExFive.requestFocusInWindow();
+			if (view.dealExpressionsExFive.isEnabled()) {
+				view.resetExFive.setEnabled(false);
+			}
+			view.revalidate();
+			view.repaint();
+		}
+
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}
+	}
+	
 	/*
-	 * When the user click on the "Go back" button it makes him go back to the main menu
+	 * When the user clicks on the "Go back" button it makes him go back to the main menu
 	 */
 	public class ActionGoBack extends AbstractAction implements Observer {
 		
@@ -293,7 +346,7 @@ public class Controler {
 	}
 	
 	/*
-	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 * When the user clicks on the "Deal with it button" it gives the empty truth table of the given input
 	 */
 	public class ActionDealWithExpressions extends AbstractAction implements Observer {
 		
@@ -305,23 +358,21 @@ public class Controler {
 		public void actionPerformed(ActionEvent event) {
 			String expressions = view.inputExpressionsExOne.getText();
 			try {
-				tableau = new Tableau();
-				tableau.setRoot(new Set(expressions));
-				tableau.applyRule();
-				JPanel tabView = tableau.getView();
-				tabView.addMouseListener(new SetSelected());
-				
-				BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
-					view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				try{
+					String input = view.inputExpressionsExOne.getText();
+					TruthTable truthTable = new TruthTable(input);
+					TruthTableView truthTableView = new TruthTableView(truthTable);
+					JScrollPane scrollPane = new JScrollPane(truthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					truthTableView.check.setAction(new CheckTruthTable(truthTable, truthTableView, view));
+					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
+					view.dealExpressionsExOne.setEnabled(false);
+					view.resetExOne.setEnabled(true);
+					view.revalidate();
+					view.repaint();
 				}
-				tabView.setPreferredSize(new Dimension(1400, 1000));
-		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
-				view.dealExpressionsExOne.setEnabled(false);
-				view.resetExOne.setEnabled(true);
-				view.revalidate();
-				view.repaint();
+				catch(Exception e){
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
 			}
 			catch (StringIndexOutOfBoundsException npe){
 				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
@@ -335,6 +386,62 @@ public class Controler {
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");
 		}	
+	}
+	
+	public class CheckTruthTable extends AbstractAction implements Observer{
+
+		TruthTable truthTable;
+		TruthTableView truthTableView;
+		View view;
+		
+		public CheckTruthTable(TruthTable truthTable, TruthTableView truthTableView, View view) {
+			this.putValue(Action.NAME, "Check answers");
+			this.truthTable = truthTable;
+			this.truthTableView = truthTableView;
+			this.view = view;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			//We collect the user answers
+			String[][] answers = new String[this.truthTableView.answers.length][this.truthTableView.answers[0].length];
+			for (int i = 0; i < this.truthTableView.answers.length; i++) {
+				for (int j = 0; j < this.truthTableView.answers[0].length; j++) {
+					answers[i][j] = this.truthTableView.answers[i][j].getText();
+				}
+			}
+			try {
+				this.truthTable.buildTable();
+				//We check the answers and if they are correct we display the truth table
+				if(this.truthTable.checkAnswers(answers)){
+					BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
+					this.view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+					CorrectTruthTableView correctTruthTableView;
+					try {
+						correctTruthTableView = new CorrectTruthTableView(this.truthTable);
+						JScrollPane scrollPane = new JScrollPane(correctTruthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+						view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
+						view.revalidate();
+						view.repaint();
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					}
+				}
+				//Else we tell the user he's wrong
+				else{
+					JOptionPane.showMessageDialog(null, "You've made a mistake !");
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 	/*
@@ -379,7 +486,7 @@ public class Controler {
 	}
 	
 	/*
-	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 * When the user clicks on the "Deal with it button" it realizes the resolution of the given expression
 	 */
 	public class ActionDealWithExpressionsExThree extends AbstractAction implements Observer {
 		
@@ -408,11 +515,8 @@ public class Controler {
 						tableau.applyRule();
 						view.nextStep.setEnabled(true);
 					} catch (Exception e) {
-						System.out.println(e.getMessage());
+						JOptionPane.showMessageDialog(null, e.getMessage());
 					}
-				}
-				if (!tableau.remainingRules()) {
-					view.nextStep.setEnabled(false);
 				}
 				JPanel tabView = tableau.getView();
 				BorderLayout layout = (BorderLayout)view.panelExerciseThree.getLayout();
@@ -426,6 +530,15 @@ public class Controler {
 				view.resetExThree.setEnabled(true);
 				view.revalidate();
 				view.repaint();
+				if (!tableau.remainingRules()) {
+					view.nextStep.setEnabled(false);
+					if (tableau.getRoot().contradiction()) {
+						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "The Tableau is correct !");
+					}
+				}
 			}
 			catch (StringIndexOutOfBoundsException npe){
 				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
@@ -672,6 +785,101 @@ public class Controler {
 		
 	}
 	
+	public class ActionDealWithExpressionsExFive extends AbstractAction implements Observer {
+		
+		public ActionDealWithExpressionsExFive() {
+			this.putValue(Action.NAME, "Deal with it");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				try{
+					String input = view.inputExpressionsExFive.getText();
+					TruthTable truthTable = new TruthTable(input);
+					OneTruthTableLineView oneTruthTableLineView = new OneTruthTableLineView(truthTable);
+					JScrollPane scrollPane = new JScrollPane(oneTruthTableLineView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					oneTruthTableLineView.check.addMouseListener(new CheckAnswersLineTruthTable(truthTable, oneTruthTableLineView, view));
+					view.panelExerciseFive.add(scrollPane, BorderLayout.CENTER);
+					view.dealExpressionsExFive.setEnabled(false);
+					view.resetExFive.setEnabled(true);
+					view.revalidate();
+					view.repaint();
+				}
+				catch(Exception e){
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
+			}
+			catch (StringIndexOutOfBoundsException npe){
+				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
+			}
+			catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}	
+	}
+	
+	public class CheckAnswersLineTruthTable implements MouseListener{
+
+		TruthTable truthTable;
+		OneTruthTableLineView oneTruthTableLineView;
+		View view;
+		
+		public CheckAnswersLineTruthTable(TruthTable truthTable, OneTruthTableLineView oneTruthTableLineView, View view) {
+			this.truthTable = truthTable;
+			this.oneTruthTableLineView = oneTruthTableLineView;
+			this.view = view;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			String[] answers = new String[this.oneTruthTableLineView.answers.length];
+			for (int i = 0; i < this.oneTruthTableLineView.answers.length; i++) {
+				answers[i] = this.oneTruthTableLineView.answers[i].getText();
+			}
+			try {
+				if (this.truthTable.checkAnswersForLine(answers)) {
+					JOptionPane.showMessageDialog(null, "Correct answer !");
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Your answer is false !");
+				}
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	/*
 	 * When the user click on the button "Reset" it resets everything related to the current exercise
 	 */
@@ -807,6 +1015,36 @@ public class Controler {
 		}
 	}
 	
+	public class ActionResetExFive extends AbstractAction implements Observer {
+		
+		public ActionResetExFive() {
+			this.putValue(Action.NAME, "Reset");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("RESET");
+			BorderLayout layout = (BorderLayout)view.panelExerciseFive.getLayout();
+			view.panelExerciseFive.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			view.inputExpressionsExFive.setText("");
+			view.dealExpressionsExFive.setEnabled(true);
+			view.resetExFive.setEnabled(false);
+			view.inputExpressionsExFive.requestFocusInWindow();
+			view.revalidate();
+			view.repaint();
+			try {
+				tableau.setRoot(null);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, ex.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}
+	}
+	
 	/*
 	 * Action which allows the user to undo his last action (for the exercise four)
 	 */
@@ -855,16 +1093,23 @@ public class Controler {
 			try {
 				tableau.applyRule();
 				tableau.updateContradictions();
-				if (tableau.getNumberRules() == 0) {
-					view.nextStep.setEnabled(false);
-				}
 				view.revalidate();
 				view.repaint();
+				if (!tableau.remainingRules()) {
+					view.nextStep.setEnabled(false);
+					view.nextStep.setEnabled(false);
+					if (tableau.getRoot().contradiction()) {
+						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "The Tableau is correct !");
+					}
+				}
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(null, ex.getMessage());
 			}
 		}
-
+		
 		@Override
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");

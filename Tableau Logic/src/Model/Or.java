@@ -55,4 +55,8 @@ public class Or extends TwoFormulasOp{
 		return formulas;
 	}
 	
+	public boolean evaluate(){
+		return this.formulaOne.evaluate() || this.formulaTwo.evaluate();
+	}
+	
 }

@@ -28,4 +28,14 @@ public class DoubleImply extends TwoFormulasOp{
 		return result;
 	}
 	
+	public boolean evaluate(){
+		if ((this.formulaOne.evaluate() && this.formulaTwo.evaluate()) 
+				|| (!this.formulaOne.evaluate() && !this.formulaTwo.evaluate())) {
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 }

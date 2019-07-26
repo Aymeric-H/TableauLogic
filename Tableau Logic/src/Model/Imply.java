@@ -47,4 +47,13 @@ public class Imply extends TwoFormulasOp{
 		return formulas;
 	}
 	
+	public boolean evaluate(){
+		if (this.formulaOne.evaluate() && !this.formulaTwo.evaluate()) {
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+	
 }

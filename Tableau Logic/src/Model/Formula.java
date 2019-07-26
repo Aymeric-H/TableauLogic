@@ -69,4 +69,6 @@ public abstract class Formula {
 		tree.refresh();
 	}
 	
+	public abstract boolean evaluate();
+	
 }
