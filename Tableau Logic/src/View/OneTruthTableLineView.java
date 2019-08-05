@@ -28,12 +28,15 @@ public class OneTruthTableLineView extends JPanel{
 		
 		this.setLayout(new FlowLayout());
 		
+		// We build a JPanel for each column of the truth table
 		for (int i = 0; i < answers.length; i++) {
 			
 			JPanel column = new JPanel();
 			column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
 			column.setBorder(BorderFactory.createEtchedBorder());
 			
+			// The first line is for each column the corresponding Literal/Formula
+			//In this case a Literal
 			if (i < numberOfLiterals) {
 				Literal literal;
 				try {
@@ -47,6 +50,7 @@ public class OneTruthTableLineView extends JPanel{
 					throw e;
 				}
 			}
+			//In this one a Formula
 			else {
 				JLabel form = new JLabel(truthTable.getNode(i - numberOfLiterals).toString().
 						substring(4, truthTable.getNode(i - numberOfLiterals).toString().length() - 1));
@@ -56,6 +60,7 @@ public class OneTruthTableLineView extends JPanel{
 				column.add(formPanel);
 			}
 			
+			// The second line is a JTextField to let the user give his answer
 			JTextField answer = new JTextField();
 			this.answers[i] = answer;
 			answer.setPreferredSize(new Dimension(50, 22));

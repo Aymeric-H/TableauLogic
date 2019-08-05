@@ -7,14 +7,23 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.PaintContext;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -27,10 +36,17 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 public class View extends JFrame{
 	
 	public JPanel main;
+	
+	public JPanel exOne;
+	public JPanel exTwo;
+	public JPanel exThree;
+	public JPanel exFour;
+	public JPanel exFive;
 	
 	public JButton exerciseOne;
 	public JButton exerciseTwo;
@@ -47,6 +63,7 @@ public class View extends JFrame{
 	
 	public JTextField inputExpressionsExOne;
 	public JButton dealExpressionsExOne;
+	public JButton giveExpressionExOne;
 	public JButton resetExOne;
 	public JButton goBackExOne;
 	
@@ -128,6 +145,40 @@ public class View extends JFrame{
 		topPanel.add(rightTopCorner, BorderLayout.LINE_END);
 		
 		
+		JPanel listOfExercises = new JPanel(new GridLayout(2,3));
+		
+		this.exOne = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JLabel exOneLabel = new JLabel("Train with Truth Tables");
+		exOne.add(exOneLabel);
+		exOne.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		listOfExercises.add(exOne);
+		
+		this.exTwo = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JLabel exTwoLabel = new JLabel("Learn about And-Or Trees");
+		exTwo.add(exTwoLabel);
+		exTwo.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		listOfExercises.add(exTwo);
+		
+		this.exThree = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JLabel exThreeLabel = new JLabel("How to Build a Tableau");
+		exThree.add(exThreeLabel);
+		exThree.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		listOfExercises.add(exThree);
+		
+		this.exFour = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JLabel exFourLabel = new JLabel("Build your own Tableau");
+		exFour.add(exFourLabel);
+		exFour.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		listOfExercises.add(exFour);
+		
+		this.exFive = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JLabel exFiveLabel = new JLabel("Exercise Truth Tables -- One line");
+		exFive.add(exFiveLabel);
+		exFive.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+		listOfExercises.add(new JPanel());
+		listOfExercises.add(exFive);
+		
+		
 		
 		//List of exercises
 		this.exerciseOne = new JButton();
@@ -154,6 +205,8 @@ public class View extends JFrame{
 		this.main = new JPanel(new BorderLayout());
 		this.main.add(this.exercisesPanel, BorderLayout.CENTER);
 		
+		//this.main.add(listOfExercises);
+		
 		
 		//Exercise 1
 		JLabel inputLabelOne = new JLabel("Input : ");
@@ -161,11 +214,13 @@ public class View extends JFrame{
 		this.inputExpressionsExOne.setPreferredSize(new Dimension(500, 27));
 		this.inputExpressionsExOne.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExOne = new JButton();
+		this.giveExpressionExOne = new JButton();
 		this.resetExOne = new JButton();
 		JPanel exerciseOneTop = new JPanel(new FlowLayout());
 		exerciseOneTop.add(inputLabelOne);
 		exerciseOneTop.add(this.inputExpressionsExOne);
 		exerciseOneTop.add(this.dealExpressionsExOne);
+		exerciseOneTop.add(this.giveExpressionExOne);
 		exerciseOneTop.add(this.resetExOne);
 		this.goBackExOne = new JButton();
 		

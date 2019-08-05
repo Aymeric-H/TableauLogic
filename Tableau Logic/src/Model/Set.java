@@ -514,7 +514,7 @@ public class Set {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString(){
-		return "{ " + this.formulas.toString().substring(1, this.formulas.toString().length() - 1) + " }  " + this.lastRuleApplied;
+		return "{" + this.formulas.toString().substring(1, this.formulas.toString().length() - 1) + "} " + this.lastRuleApplied;
 	}
 	
 }

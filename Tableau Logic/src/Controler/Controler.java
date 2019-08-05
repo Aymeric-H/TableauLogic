@@ -1,6 +1,7 @@
 package Controler;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +9,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +25,7 @@ import java.util.Stack;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,12 +49,21 @@ public class Controler {
 	private View view;
 	private PopupViewChoseOperator popup;
 	private Stack<Tableau> stepsStack;
+	private ArrayList<String> examples;
+	private int indexOfExamples;
 	
 	public Controler(Tableau tab){
 		
 		this.tableau = tab;
 		this.view = new View();
 		this.stepsStack = new Stack<Tableau>();
+		this.examples = new ArrayList<String>();
+		indexOfExamples = 0;
+		
+		// We read the file of examples for the first exercise and stock every expressions in the ArrayList we created
+		this.readFileExamplesExOne();
+		
+		this.view.exOne.addMouseListener(new ActionExOne());
 		
 		//Exercise 1
 		
@@ -63,6 +81,9 @@ public class Controler {
 		
 		ActionDealWithExpressions actionDealWithExpressions = new ActionDealWithExpressions();
 		this.view.dealExpressionsExOne.setAction(actionDealWithExpressions);
+		
+		ActionGiveExpression actionGiveExpression = new ActionGiveExpression();
+		this.view.giveExpressionExOne.setAction(actionGiveExpression);
 		
 		ActionReset actionReset = new ActionReset();
 		this.view.resetExOne.setAction(actionReset);
@@ -171,6 +192,49 @@ public class Controler {
 		this.view.goBackExFive.setAction(actionGoBackExFive);
 		
 	}
+	
+	public class ActionExOne implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println("APPUYE");
+			BorderLayout layout = (BorderLayout)view.main.getLayout();
+			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			view.main.add(view.panelExerciseOne, BorderLayout.CENTER);
+			view.inputExpressionsExOne.requestFocusInWindow();
+			if (view.dealExpressionsExOne.isEnabled()) {
+				view.resetExOne.setEnabled(false);
+			}
+			view.revalidate();
+			view.repaint();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}		
+		
+	}
+	
 	
 	/*
 	 * When the user clicks on the button of the first exercise it removes the panel of the main menu
@@ -363,9 +427,10 @@ public class Controler {
 					TruthTable truthTable = new TruthTable(input);
 					TruthTableView truthTableView = new TruthTableView(truthTable);
 					JScrollPane scrollPane = new JScrollPane(truthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-					truthTableView.check.setAction(new CheckTruthTable(truthTable, truthTableView, view));
+					truthTableView.check.setAction(new CheckTruthTable(truthTable, truthTableView, view, input));
 					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
 					view.dealExpressionsExOne.setEnabled(false);
+					view.giveExpressionExOne.setEnabled(false);
 					view.resetExOne.setEnabled(true);
 					view.revalidate();
 					view.repaint();
@@ -388,48 +453,90 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * Controller which allows to check the user's answers for the truth table
+	 * It checks all the boolean values and tells the user if there's a mistake
+	 * If everything is correct the view is updated with the truth table (as fixed)
+	 */
 	public class CheckTruthTable extends AbstractAction implements Observer{
 
 		TruthTable truthTable;
 		TruthTableView truthTableView;
 		View view;
+		String input;
 		
-		public CheckTruthTable(TruthTable truthTable, TruthTableView truthTableView, View view) {
+		public CheckTruthTable(TruthTable truthTable, TruthTableView truthTableView, View view, String input) {
 			this.putValue(Action.NAME, "Check answers");
 			this.truthTable = truthTable;
 			this.truthTableView = truthTableView;
 			this.view = view;
+			this.input = input;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			//We collect the user answers
-			String[][] answers = new String[this.truthTableView.answers.length][this.truthTableView.answers[0].length];
-			for (int i = 0; i < this.truthTableView.answers.length; i++) {
-				for (int j = 0; j < this.truthTableView.answers[0].length; j++) {
-					answers[i][j] = this.truthTableView.answers[i][j].getText();
+			// We check if the data file exists
+			File dataFile = new File("src/DataFileExOne.txt");
+			if (!dataFile.exists()) {
+				System.out.println("File does not exist !");
+				try {
+					dataFile.createNewFile();
+					FileWriter fileWriter = new FileWriter(dataFile);
+					fileWriter.write('0');
+					fileWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
+			else{
+				System.out.println("File existing !");
+			}
+			//We collect the user answers
+			int numberOfColumns = this.truthTableView.answers[0].length;
+			int numberOfRows = this.truthTableView.answers.length;
 			try {
 				this.truthTable.buildTable();
-				//We check the answers and if they are correct we display the truth table
-				if(this.truthTable.checkAnswers(answers)){
-					BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
-					this.view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-					CorrectTruthTableView correctTruthTableView;
-					try {
-						correctTruthTableView = new CorrectTruthTableView(this.truthTable);
-						JScrollPane scrollPane = new JScrollPane(correctTruthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-						view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
-						view.revalidate();
-						view.repaint();
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(null, e.getMessage());
+				// We check the answers column by column
+				// We get each column
+				for (int i = 0; i < numberOfColumns; i++) {
+					String[] column = new String[numberOfRows];
+					for (int j = 0; j < numberOfRows; j++) {
+						column[j] = this.truthTableView.answers[j][i].getText();
+						if (this.truthTableView.answers[j][i].getForeground().equals(Color.RED)) {
+							this.truthTableView.answers[j][i].setForeground(Color.BLACK);
+						}
+					}
+					// We compare each column with the right values (the correct Truth Table)
+					ArrayList<Integer> mistakesIndex = this.truthTable.checkColumn(column, i);
+					if (!mistakesIndex.isEmpty()) {
+						for (Integer index: mistakesIndex) {
+							this.truthTableView.answers[index][i].setForeground(Color.RED);
+						}
+						FileReader fileReader = new FileReader(dataFile);
+						int character = (int) fileReader.read();
+						fileReader.close();
+						character ++;
+						// If there's a mistake we stop the checking and tell the user he's wrong
+						throw new Exception("You've made a mistake !");
 					}
 				}
-				//Else we tell the user he's wrong
-				else{
-					JOptionPane.showMessageDialog(null, "You've made a mistake !");
+				// If no mistake encountered we display the Truth Table as fixed
+				BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
+				this.view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				CorrectTruthTableView correctTruthTableView;
+				try {
+					correctTruthTableView = new CorrectTruthTableView(this.truthTable);
+					JScrollPane scrollPane = new JScrollPane(correctTruthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
+					// If the user succeeded in finding the right answer for the current level of formula
+					// (from the file of given formulas) we increase the level of the user by One
+					if (examples.get(indexOfExamples).equals(input) && indexOfExamples < examples.size()-1) {
+						indexOfExamples ++;
+					}
+					view.revalidate();
+					view.repaint();
+				} catch (Exception e) {
+					throw e;
 				}
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, e.getMessage());
@@ -442,6 +549,39 @@ public class Controler {
 			
 		}
 		
+	}
+	
+	public class ActionGiveExpression extends AbstractAction implements Observer{
+		
+		public ActionGiveExpression() {
+			this.putValue(Action.NAME, "Give an expression");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			view.inputExpressionsExOne.setText(examples.get(indexOfExamples));
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			
+		}
+		
+	}
+	
+	public void readFileExamplesExOne(){
+
+        try (BufferedReader br = Files.newBufferedReader(Paths.get("src/Examples.txt"))) {
+
+            // read line by line
+            String line;
+            while ((line = br.readLine()) != null) {
+            	this.examples.add(line);
+            }
+
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
 	}
 	
 	/*
@@ -518,13 +658,12 @@ public class Controler {
 						JOptionPane.showMessageDialog(null, e.getMessage());
 					}
 				}
-				JPanel tabView = tableau.getView();
+				TableauView<String> tabView = tableau.getView();				
 				BorderLayout layout = (BorderLayout)view.panelExerciseThree.getLayout();
 				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
 					view.panelExerciseThree.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
-				tabView.setPreferredSize(new Dimension(1400, 1000));
-		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				view.panelExerciseThree.add(scrollPane, BorderLayout.CENTER);
 				view.dealExpressionsExThree.setEnabled(false);
 				view.resetExThree.setEnabled(true);
@@ -532,7 +671,7 @@ public class Controler {
 				view.repaint();
 				if (!tableau.remainingRules()) {
 					view.nextStep.setEnabled(false);
-					if (tableau.getRoot().contradiction()) {
+					if (!tableau.validity()) {
 						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
 					}
 					else{
@@ -570,14 +709,13 @@ public class Controler {
 				tableau = new Tableau();
 				tableau.setRoot(new Set(expressions));
 				tableau.applyRule();
-				TableauView<String> tabView = tableau.getView();
+				JPanel tabView = tableau.getView();
 				tabView.addMouseListener(new SetSelected());
 				
 				BorderLayout layout = (BorderLayout)view.panelExerciseFour.getLayout();
 				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
 					view.panelExerciseFour.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
-				tabView.setPreferredSize(new Dimension(1400, 1000));
 		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				view.panelExerciseFour.add(scrollPane, BorderLayout.CENTER);
 				view.dealExpressionsExFour.setEnabled(false);
@@ -785,6 +923,10 @@ public class Controler {
 		
 	}
 	
+	/*
+	 * When the user clicks on the "Deal with it" button it gives an empty line of the truth table
+	 * of the given input expression
+	 */
 	public class ActionDealWithExpressionsExFive extends AbstractAction implements Observer {
 		
 		public ActionDealWithExpressionsExFive() {
@@ -824,6 +966,10 @@ public class Controler {
 		}	
 	}
 	
+	/*
+	 * Listener for the check button of the truth table line
+	 * It allows to check the user's answers and tells whether he's all right or not
+	 */
 	public class CheckAnswersLineTruthTable implements MouseListener{
 
 		TruthTable truthTable;
@@ -896,6 +1042,7 @@ public class Controler {
 			view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.inputExpressionsExOne.setText("");
 			view.dealExpressionsExOne.setEnabled(true);
+			view.giveExpressionExOne.setEnabled(true);
 			view.resetExOne.setEnabled(false);
 			view.inputExpressionsExOne.requestFocusInWindow();
 			view.revalidate();

@@ -1,6 +1,7 @@
 package Model;
 
 import java.awt.FlowLayout;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,6 +15,10 @@ public class TruthTable {
 	private HashMap<Literal, Integer> literals;
 	private String[][] table;
 	
+	/*
+	 * Constructor of the class
+	 * input => the given expression to deal with
+	 */
 	public TruthTable(String input) throws Exception{
 		this.nodes = new ArrayList<Formula>();
 		this.literals = new HashMap<Literal, Integer>();
@@ -74,7 +79,7 @@ public class TruthTable {
 	}
 
 	/*
-	 * Function which initialize the truth table
+	 * Function which initializes the truth table
 	 */
 	public void initializeTable(){
 		int numberOfValInARow = this.table.length / 2;
@@ -101,29 +106,44 @@ public class TruthTable {
 		}
 	}
 
+	/*
+	 * Getter for the array of formulas of the expression (each formula is a step in the truth table)
+	 */
 	public ArrayList<Formula> getNodes() {
 		return nodes;
 	}
 
-
+	/*
+	 * Setter for the array of formulas
+	 */
 	public void setNodes(ArrayList<Formula> nodes) {
 		this.nodes = nodes;
 	}
 
-
+	/*
+	 * Getter for the Literals of the expression
+	 */
 	public HashMap<Literal, Integer> getLiterals() {
 		return literals;
 	}
 
-
+	/*
+	 * Setter for the Literals of the expression
+	 */
 	public void setLiterals(HashMap<Literal, Integer> literals) {
 		this.literals = literals;
 	}
 	
+	/*
+	 * Getter for the values of the truth table
+	 */
 	public String[][] getTable(){
 		return this.table;
 	}
 
+	/*
+	 * Function which allows to get the String version of the truth table
+	 */
 	public String tableToString() {
 		String truthTable = "";
 		for (int i = 0; i < table.length; i++) {
@@ -138,6 +158,9 @@ public class TruthTable {
 		return truthTable;
 	}
 
+	/*
+	 * Setter for the truth table
+	 */
 	public void setTable(String[][] table) {
 		this.table = table;
 	}
@@ -193,6 +216,10 @@ public class TruthTable {
 		}
 	}
 	
+	/*
+	 * Function which allows to check all the user's answers
+	 * answers => the user's answers
+	 */
 	public boolean checkAnswers(String[][] answers){
 		for (int i = 0; i < answers.length; i++) {
 			for (int j = 0; j < answers[0].length; j++) {
@@ -202,6 +229,16 @@ public class TruthTable {
 			}
 		}
 		return true;
+	}
+	
+	public ArrayList<Integer> checkColumn(String[] answers, int column){
+		ArrayList<Integer> mistakesIndex = new ArrayList<Integer>();
+		for (int i = 0; i < answers.length; i++) {
+			if (!answers[i].equals(this.table[i][column + this.literals.size()])) {
+				mistakesIndex.add(i);
+			}
+		}
+		return mistakesIndex;
 	}
 	
 	/*

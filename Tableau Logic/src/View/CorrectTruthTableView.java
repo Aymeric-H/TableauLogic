@@ -25,13 +25,14 @@ public class CorrectTruthTableView extends JPanel{
 		int numberOfColumns = truthTable.getNumberOfColumns();
 		int numberOfLiterals = truthTable.getNumberOfLiterals();
 		
+		// We build a JPanel for each column of the truth table
 		for (int i = 0; i < numberOfColumns; i++) {
 			
 			JPanel column = new JPanel();
 			column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
 			column.setBorder(BorderFactory.createEtchedBorder());
 			
-			//First line of the column => Literal/Formula
+			// The first line of each column is a Literal or a Formula
 			if (i < truthTable.getLiterals().size()) {
 				Literal literal;
 				try {
@@ -54,7 +55,7 @@ public class CorrectTruthTableView extends JPanel{
 				column.add(formPanel);
 			}
 			
-			//Rest of the lines => value of the element
+			// For the rest of the lines we only give a JLabel with the correct answer
 			for (int j = 0; j < numberOfRows; j++) {
 				JLabel value = new JLabel(truthTable.getTable()[j][i]);
 				value.setPreferredSize(new Dimension(50,25));

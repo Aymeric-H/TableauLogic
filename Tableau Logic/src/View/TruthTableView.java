@@ -23,6 +23,7 @@ public class TruthTableView extends JPanel{
 	
 	public TruthTableView(TruthTable truthTable) throws Exception{
 		
+		// Initialization of the data we need to build the view
 		int numberOfRows = truthTable.getNumberOfRows();
 		int numberOfColumns = truthTable.getNumberOfColumns();
 		int numberOfLiterals = truthTable.getNumberOfLiterals();
@@ -30,13 +31,14 @@ public class TruthTableView extends JPanel{
 		this.answers = new JTextField[numberOfRows][numberOfColumns - numberOfLiterals];
 		this.setLayout(new FlowLayout());
 		
+		// We build a JPanel for each column of the truth table
 		for (int i = 0; i < numberOfColumns; i++) {
 			
 			JPanel column = new JPanel();
 			column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
 			column.setBorder(BorderFactory.createEtchedBorder());
 			
-			//First line of the column => Literal/Formula
+			// The first line of each column is a Literal or a Formula
 			if (i < numberOfLiterals) {
 				Literal literal;
 				try {
@@ -50,7 +52,8 @@ public class TruthTableView extends JPanel{
 					throw e;
 				}
 				
-				//Rest of the lines => value of the element
+				// The rest of the lines => the value of each element
+				// In this case (a Literal column) we have a JLabel to build every possible combinations
 				for (int j = 0; j < numberOfRows; j++) {
 					JLabel value = new JLabel(truthTable.getTable()[j][i]);
 					value.setPreferredSize(new Dimension(50,25));
@@ -69,7 +72,8 @@ public class TruthTableView extends JPanel{
 				formPanel.add(form);
 				column.add(formPanel);
 				
-				//Rest of the lines => value of the element
+				// The rest of the lines => the value of each element
+				// In this case (a Formula column) we have a JTextField for each combination to let the user give his answer
 				for (int j = 0; j < numberOfRows; j++) {
 					JTextField answer = new JTextField();
 					this.answers[j][i - numberOfLiterals] = answer;
