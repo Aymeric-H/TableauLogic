@@ -476,7 +476,7 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// We check if the data file exists
-			File dataFile = new File("src/DataFileExOne.txt");
+			File dataFile = new File("DataFileExOne.txt");
 			if (!dataFile.exists()) {
 				System.out.println("File does not exist !");
 				try {
@@ -512,10 +512,10 @@ public class Controler {
 						for (Integer index: mistakesIndex) {
 							this.truthTableView.answers[index][i].setForeground(Color.RED);
 						}
-						FileReader fileReader = new FileReader(dataFile);
+						/*FileReader fileReader = new FileReader(dataFile);
 						int character = (int) fileReader.read();
 						fileReader.close();
-						character ++;
+						character ++;*/
 						// If there's a mistake we stop the checking and tell the user he's wrong
 						throw new Exception("You've made a mistake !");
 					}
