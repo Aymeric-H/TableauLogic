@@ -15,6 +15,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -476,7 +477,9 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// We check if the data file exists
-			File dataFile = new File("DataFileExOne.txt");
+			Path currentRelativePath = Paths.get("");
+			String path = currentRelativePath.toAbsolutePath().toString();
+			File dataFile = new File(path + "/DataFileExOne.txt");
 			if (!dataFile.exists()) {
 				System.out.println("File does not exist !");
 				try {
