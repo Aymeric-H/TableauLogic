@@ -550,7 +550,7 @@ public class Controler {
 					// If the user succeeded in finding the right answer for the current level of formula
 					// (from the file of given formulas) we increase the level of the user by One
 					System.out.println(indexOfExamples);
-					if (!examples.isEmpty() && examples.get(indexOfExamples).equals(input) && indexOfExamples < examples.size()-1) {
+					if (!examples.isEmpty() && indexOfExamples < examples.size() && examples.get(indexOfExamples).equals(input)) {
 						indexOfExamples++;
 						updateIndexExOne(indexOfExamples);
 					}
@@ -580,7 +580,11 @@ public class Controler {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			view.inputExpressionsExOne.setText(examples.get(indexOfExamples));
+			try {
+				view.inputExpressionsExOne.setText(examples.get(indexOfExamples));
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
+			}
 		}
 
 		@Override
