@@ -71,4 +71,6 @@ public abstract class Formula {
 	
 	public abstract boolean evaluate();
 	
+	public abstract String getFormulaString();
+	
 }

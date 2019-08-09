@@ -52,8 +52,7 @@ public class OneTruthTableLineView extends JPanel{
 			}
 			//In this one a Formula
 			else {
-				JLabel form = new JLabel(truthTable.getNode(i - numberOfLiterals).toString().
-						substring(4, truthTable.getNode(i - numberOfLiterals).toString().length() - 1));
+				JLabel form = new JLabel(truthTable.getNode(i - numberOfLiterals).getFormulaString());
 				form.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 				JPanel formPanel = new JPanel(new FlowLayout());
 				formPanel.add(form);

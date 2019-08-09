@@ -45,6 +45,7 @@ import View.View;
 import View.CorrectTruthTableView;
 import View.OneTruthTableLineView;
 import View.PopupViewChoseOperator;
+import View.PopupViewDataExOne;
 
 public class Controler {
 
@@ -62,9 +63,9 @@ public class Controler {
 		this.view = new View();
 		this.stepsStack = new Stack<Tableau>();
 		this.examples = new ArrayList<String>();
-		indexOfExamples = 0;
 		
-		
+		// We define the Data storage space (H-Drive if the user is on a University 
+		// computer and the current folder if he is on his own computer)
 		if (new File("H:").exists()) {
 			this.beginingOfPath = "H:/";
 		}
@@ -73,11 +74,21 @@ public class Controler {
 		}
 		try {
 			Files.createDirectories(Paths.get(this.beginingOfPath + "LogicAppData"));
+			File indexFile = new File(this.beginingOfPath + "LogicAppData" + "/Index.txt");
+			if (!indexFile.exists()) {
+				indexFile.createNewFile();
+				FileWriter fileWriter = new FileWriter(indexFile);
+				fileWriter.write("0");
+				fileWriter.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.beginingOfPath = this.beginingOfPath + "LogicAppData/";
 		
+		
+		// We get the index of the next example to deal with (exercise one)
+		this.readIndexExOne();		
 		
 		// We read the file of examples for the first exercise and stock every expressions in the ArrayList we created
 		this.readFileExamplesExOne();
@@ -106,6 +117,9 @@ public class Controler {
 		
 		ActionReset actionReset = new ActionReset();
 		this.view.resetExOne.setAction(actionReset);
+		
+		ActionShowProgressExOne actionShowProgressExOne = new ActionShowProgressExOne();
+		this.view.progressExOne.setAction(actionShowProgressExOne);
 		
 		ActionGoBack actionGoBack = new ActionGoBack();
 		this.view.goBackExOne.setAction(actionGoBack);
@@ -495,9 +509,10 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			try {
+				//We setup the object which will read/write our data
 				DataHandler dataHandler = new DataHandler(beginingOfPath + "DataFileExOne.txt");
-				dataHandler.write(this.input, this.truthTable.getNumberOfColumns() - this.truthTable.getNumberOfLiterals());
-				
+				//dataHandler.write(this.input, this.truthTable.getNumberOfColumns() - this.truthTable.getNumberOfLiterals());
+				dataHandler.write(this.input, this.truthTable.getNodes());
 				//We collect the user answers
 				int numberOfColumns = this.truthTableView.answers[0].length;
 				int numberOfRows = this.truthTableView.answers.length;
@@ -534,8 +549,10 @@ public class Controler {
 					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
 					// If the user succeeded in finding the right answer for the current level of formula
 					// (from the file of given formulas) we increase the level of the user by One
+					System.out.println(indexOfExamples);
 					if (!examples.isEmpty() && examples.get(indexOfExamples).equals(input) && indexOfExamples < examples.size()-1) {
-						indexOfExamples ++;
+						indexOfExamples++;
+						updateIndexExOne(indexOfExamples);
 					}
 					view.revalidate();
 					view.repaint();
@@ -573,6 +590,32 @@ public class Controler {
 		
 	}
 	
+	/*
+	 * Function which allows to read the index of the next expression to give to the user (Exercise 1)
+	 */
+	public void readIndexExOne(){
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(this.beginingOfPath + "Index.txt")))) {
+            // read line by line
+            this.indexOfExamples = Integer.valueOf(br.readLine());
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
+	}
+	
+	/*
+	 * Function which allows to update the index of the next expression to give to the user (Exercise 1)
+	 * index => the updated value of the index
+	 */
+	public void updateIndexExOne(int index) throws IOException{
+		File file = new File(this.beginingOfPath + "Index.txt");
+		FileWriter fileWriter = new FileWriter(file);
+		fileWriter.write(String.valueOf(index));
+		fileWriter.close();
+	}
+	
+	/*
+	 * Function which allows to read the Files with all the examples (for the first exercise)
+	 */
 	public void readFileExamplesExOne(){
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("Examples.txt")))) {
             // read line by line
@@ -584,6 +627,36 @@ public class Controler {
             System.err.format("IOException: %s%n", e);
         }
 	}
+	
+	
+	public class ActionShowProgressExOne extends AbstractAction implements Observer {
+		
+		public ActionShowProgressExOne() {
+			this.putValue(Action.NAME, "Your Progress");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			DataHandler dataHandler;
+			try {
+				dataHandler = new DataHandler(beginingOfPath + "DataFileExOne.txt");
+				PopupViewDataExOne popup = new PopupViewDataExOne(dataHandler.getMistakes(),
+						dataHandler.getExamplesOneShot(), dataHandler.getMaxNumberOfColumns());
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		
+		
+	}
+	
 	
 	/*
 	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression

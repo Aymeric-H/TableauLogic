@@ -66,4 +66,8 @@ public class Literal extends Formula{
 		}
 	}
 	
+	public String getFormulaString(){
+		return this.name;
+	}
+	
 }

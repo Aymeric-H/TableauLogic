@@ -109,4 +109,45 @@ public abstract class TwoFormulasOp extends Formula{
 			return "F [ " + childOne + " " + this.name + " " + childTwo + " ]";
 		}
 	}
+	
+	public String getFormulaString(){
+		String childOne, childTwo;
+		if (this.formulaOne == null) {
+			childOne = null;
+		}
+		else if (this.formulaOne instanceof Literal) {
+			if (!this.formulaOne.getValue()) {
+				childOne = "~" + this.formulaOne.name;
+			}
+			else{
+				childOne = this.formulaOne.name;
+			}
+		}
+		else if (this.formulaOne instanceof OneFormulaOp){
+			childOne = this.formulaOne.getFormulaString();
+		}
+		//Else it is a TwoFormulasOp
+		else{
+			childOne = "( " + this.formulaOne.getFormulaString() + " )";
+		}
+		if (this.formulaTwo == null) {
+			childTwo = null;
+		}
+		else if (this.formulaTwo instanceof Literal) {
+			if (!this.formulaTwo.getValue()) {
+				childTwo = "~" + this.formulaTwo.name;
+			}
+			else{
+				childTwo = this.formulaTwo.name;
+			}
+		}
+		else if (this.formulaTwo instanceof OneFormulaOp){
+			childTwo = this.formulaTwo.getFormulaString();
+		}
+		//Else it is a TwoFormulasOp
+		else{
+			childTwo = "( " + this.formulaTwo.getFormulaString() + " )";
+		}
+		return childOne + " " + this.name +" " + childTwo;
+	}
 }

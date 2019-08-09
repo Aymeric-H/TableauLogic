@@ -72,4 +72,23 @@ public abstract class OneFormulaOp extends Formula{
 		}
 	}
 	
+	public String getFormulaString(){
+		String child;
+		if (this.formula == null) {
+			child = null;
+		}
+		else if (this.formula instanceof Literal) {
+			if (!this.formula.getValue()) {
+				child = "~" + this.formula.name;
+			}
+			else{
+				child = this.formula.name;
+			}
+		}
+		else{
+			child = "( " + this.formula.getFormulaString() + " )";
+		}
+		return this.name + child;
+	}
+	
 }

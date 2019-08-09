@@ -65,6 +65,7 @@ public class View extends JFrame{
 	public JButton dealExpressionsExOne;
 	public JButton giveExpressionExOne;
 	public JButton resetExOne;
+	public JButton progressExOne;
 	public JButton goBackExOne;
 	
 	public JTextField inputExpressionsExTwo;
@@ -147,6 +148,7 @@ public class View extends JFrame{
 		
 		JPanel listOfExercises = new JPanel(new GridLayout(2,3));
 		
+		// Version with Panels
 		this.exOne = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JLabel exOneLabel = new JLabel("Train with Truth Tables");
 		exOne.add(exOneLabel);
@@ -180,7 +182,8 @@ public class View extends JFrame{
 		
 		
 		
-		//List of exercises
+		// List of exercises
+		// Version with Buttons
 		this.exerciseOne = new JButton();
 		this.exerciseOne.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.exerciseTwo = new JButton();
@@ -201,7 +204,7 @@ public class View extends JFrame{
 		this.exercisesPanel.add(exerciseFive);
 		
 		
-		//Main panel => where the exercises are set
+		// Main panel => where the exercises are set
 		this.main = new JPanel(new BorderLayout());
 		this.main.add(this.exercisesPanel, BorderLayout.CENTER);
 		
@@ -216,12 +219,14 @@ public class View extends JFrame{
 		this.dealExpressionsExOne = new JButton();
 		this.giveExpressionExOne = new JButton();
 		this.resetExOne = new JButton();
+		this.progressExOne = new JButton();
 		JPanel exerciseOneTop = new JPanel(new FlowLayout());
 		exerciseOneTop.add(inputLabelOne);
 		exerciseOneTop.add(this.inputExpressionsExOne);
 		exerciseOneTop.add(this.dealExpressionsExOne);
 		exerciseOneTop.add(this.giveExpressionExOne);
 		exerciseOneTop.add(this.resetExOne);
+		exerciseOneTop.add(this.progressExOne);
 		this.goBackExOne = new JButton();
 		
 		this.panelExerciseOne = new JPanel(new BorderLayout());
