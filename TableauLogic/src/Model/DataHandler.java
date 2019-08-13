@@ -16,20 +16,33 @@ public class DataHandler {
 	private String path;
 	private File file;
 	
+	/*
+	 * Constructor of the class DataHandler
+	 * path => the path (a String) of the file where the data is stored
+	 */
 	public DataHandler(String path) throws IOException{
+		// If the user has a H-Drive (it means he's certainly on the university computer) we store the data
+		// on this Drive
 		if (path.charAt(0) == 'H') {
 			this.path = Paths.get(path).toString();
 		}
+		// In the other case we store it on the current folder (the one of the app)
 		else{
 			this.path = Paths.get("").toAbsolutePath().toString() + "/" + path;
 		}
+		// We create the data file if it doesn't already exist
 		this.file = new File(this.path);
 		if (!this.file.exists()) {
 			this.file.createNewFile();
 		}
 	}
 	
+	/*
+	 * Function which allows to write data in the data file
+	 * data => the data (as String) to write in the file
+	 */
 	public void write(String data) throws IOException{
+		// We write the data only if the expression isn't already in the file
 		if (!this.isExpressionInDataFile(data.split(" ")[0])) {
 			FileWriter fileWriter = new FileWriter(this.file, true);
 			fileWriter.write(data + System.getProperty("line.separator"));
@@ -38,6 +51,11 @@ public class DataHandler {
 		}
 	}
 	
+	/*
+	 * Function which allows to write data in the data file (Initialization of the number of mistakes for an expression)
+	 * expression => the data (an expression)
+	 * numberOfColumns => the number of columns needed to display all the data wanted (one data for each sub-formula)
+	 */
 	public void write(String expression, int numberOfColumns) throws IOException{
 		if (!this.isExpressionInDataFile(expression)) {
 			FileWriter fileWriter = new FileWriter(this.file, true);
@@ -51,6 +69,11 @@ public class DataHandler {
 		}
 	}
 	
+	/*
+	 * Function which allows to write data in the data file (Initialization of the data "sub-formula:0")
+	 * expression => the data (an expression)
+	 * subFormulas => an array of every sub-formulas in the expression provided
+	 */
 	public void write(String expression, ArrayList<Formula> subFormulas) throws IOException{
 		if (!this.isExpressionInDataFile(expression)) {
 			FileWriter fileWriter = new FileWriter(this.file, true);
@@ -64,6 +87,10 @@ public class DataHandler {
 		}
 	}
 	
+	/*
+	 * Function which allows to know whether an expression is already written in the file or not
+	 * expression => the expression we want to know about
+	 */
 	public boolean isExpressionInDataFile(String expression) throws IOException{
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
 		String line = bufferedReader.readLine();
@@ -79,6 +106,12 @@ public class DataHandler {
 		return false;
 	}
 	
+	/*
+	 * Function which allows to update the data for an expression given
+	 * expression => the expression we want to update in the data file
+	 * column => the index of the column (sub-formula) data we want to update
+	 * numberOfMistakes => the number of mistakes for a sub-formula to add to the data
+	 */
 	public void update(String expression, int column, int numberOfMistakes) throws IOException{
 		String content = "";
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
@@ -101,6 +134,9 @@ public class DataHandler {
 		fileWriter.close();
 	}
 	
+	/*
+	 * Function which allows to get all the data present in the data file (an array with every lines of data)
+	 */
 	public ArrayList<String[]> getData() throws IOException{
 		ArrayList<String[]> data = new ArrayList<String[]>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
@@ -113,6 +149,9 @@ public class DataHandler {
 		return data;
 	}
 	
+	/*
+	 * Function which allows to get all the expressions for which the user made no mistakes at all
+	 */
 	public ArrayList<String> getExamplesOneShot() throws IOException{
 		ArrayList<String> data = new ArrayList<String>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
@@ -136,22 +175,21 @@ public class DataHandler {
 		return data;
 	}
 	
+	/*
+	 * Function which allows to get the expressions for which the user made at least one mistake
+	 */
 	public ArrayList<String[]> getMistakes() throws IOException{
 		ArrayList<String[]> data = new ArrayList<String[]>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
 		String line = bufferedReader.readLine();
 		while (line != null) {
 			String[] splitLine = line.split(" ");
-			boolean mistake = false;
 			int cpt = 1;
-			while (!mistake && cpt < splitLine.length) {
+			while (cpt < splitLine.length) {
 				if (!splitLine[cpt].split(":")[1].equals("0")) {
-					mistake = true;
+					data.add(line.split(" "));
 				}
 				cpt++;
-			}
-			if (mistake) {
-				data.add(line.split(" "));
 			}
 			line = bufferedReader.readLine();
 		}
@@ -159,6 +197,9 @@ public class DataHandler {
 		return data;
 	}
 	
+	/*
+	 * Function which allows to get the maximum number of columns (sub-formulas) an expression can have in the data file
+	 */
 	public int getMaxNumberOfColumns() throws IOException{
 		int res = 0;
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));

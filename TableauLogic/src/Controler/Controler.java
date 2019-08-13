@@ -572,6 +572,9 @@ public class Controler {
 		
 	}
 	
+	/*
+	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
+	 */
 	public class ActionGiveExpression extends AbstractAction implements Observer{
 		
 		public ActionGiveExpression() {
@@ -632,7 +635,9 @@ public class Controler {
         }
 	}
 	
-	
+	/*
+	 * Allows to display the progress of the user for the first exercise (in a popup frame)
+	 */
 	public class ActionShowProgressExOne extends AbstractAction implements Observer {
 		
 		public ActionShowProgressExOne() {
@@ -656,8 +661,6 @@ public class Controler {
 			// TODO Auto-generated method stub
 			
 		}
-		
-		
 		
 	}
 	

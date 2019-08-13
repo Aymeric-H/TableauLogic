@@ -42,13 +42,13 @@ public class PopupViewDataExOne extends JFrame {
 		// Panel for the correct answers
 		JPanel correctAnswersPanel = new JPanel();
 		correctAnswersPanel.setLayout(new BorderLayout());
-		//correctAnswersPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		JLabel correctAnswersLabel = new JLabel("Your correct answers (First try)", JLabel.CENTER);
 		correctAnswersLabel.setBorder(BorderFactory.createEmptyBorder(15, 5, 15, 5));
 		correctAnswersLabel.setFont(new Font("Serif", Font.PLAIN, 25));
 		correctAnswersPanel.add(correctAnswersLabel, BorderLayout.NORTH);
 		
+		// Calculate the number of rows for the grid layout
 		JPanel correctAnswersPanelCenter = new JPanel();
 		int numberOfRows = 0;
 		if (correctAnswers.size() % 2 == 0) {
@@ -57,11 +57,15 @@ public class PopupViewDataExOne extends JFrame {
 		else{
 			numberOfRows = (correctAnswers.size() + 1) / 2;
 		}
+		// We display a grid Layout with two columns
 		correctAnswersPanelCenter.setLayout(new GridLayout(numberOfRows, 2));
 		JScrollPane scrollPaneCorrectAnswers = new JScrollPane(correctAnswersPanelCenter, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCorrectAnswers.setBorder(BorderFactory.createEmptyBorder());
 		correctAnswersPanel.add(scrollPaneCorrectAnswers, BorderLayout.CENTER);
 		
+		// We add the expressions with which the user made no mistakes to the panel
+		// It fills the panel with one expression in the first column then one in the second and then it continues the
+		// same way for each rows till there's no more expressions to display
 		for (String correctAnswer : correctAnswers) {
 			JLabel correctAnswerLabel = new JLabel(correctAnswer.replace("", " "));
 			correctAnswerLabel.setBorder(BorderFactory.createEmptyBorder(5, 30, 5, 5));
@@ -73,10 +77,9 @@ public class PopupViewDataExOne extends JFrame {
 		centerPanel.add(correctAnswersPanel);
 		
 		
-		// Panel for the mistakes made
+		// Panel for the mistakes made by the user
 		JPanel mistakesPanel = new JPanel(new FlowLayout());
 		mistakesPanel.setLayout(new BorderLayout());
-		//mistakesPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		JLabel mistakesLabel = new JLabel("Your mistakes", JLabel.CENTER);
 		mistakesLabel.setBorder(BorderFactory.createEmptyBorder(15, 5, 15, 5));
@@ -89,6 +92,8 @@ public class PopupViewDataExOne extends JFrame {
 		scrollPaneMistakes.setBorder(BorderFactory.createEmptyBorder());
 		mistakesPanel.add(scrollPaneMistakes, BorderLayout.CENTER);
 		
+		// We display the data (for the mistakes) columns by columns (the expression in the first one
+		// and then the sub-formulas with the number of mistakes made by sub-formula)
 		for (int i = 0; i < numberOfColumns; i++) {
 			JPanel column = new JPanel();
 			column.setLayout(new GridLayout(mistakes.size(), 1));
@@ -108,7 +113,7 @@ public class PopupViewDataExOne extends JFrame {
 		
 		centerPanel.add(mistakesPanel);
 		
-		
+		// Characteristics of the frame
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) (Math.round(screenDimensions.width * 0.80));
 		int height = (int) (Math.round(screenDimensions.height * 0.80));

@@ -113,7 +113,6 @@ public class TableauView<E> extends JPanel {
     protected void drawTree(Graphics g, int minX, int maxX, 
                             int y, int yStep, Set set) {
     	
-    	
     	String s = set.toString();
         g.setFont(font);
         FontMetrics fm = g.getFontMetrics();
@@ -136,9 +135,6 @@ public class TableauView<E> extends JPanel {
 			this.maxX = (minX + maxX)/2 + width/2;
 		}
         if (this.minX < 0) {
-        	if (this.space < Math.abs(this.minX)) {
-        		//g.translate(Math.abs(this.minX) - space, 0);
-			}
         	this.space = Math.abs(this.minX);
 		}
         // We draw the current Set of formulas and recursively the rest of the Tableau
