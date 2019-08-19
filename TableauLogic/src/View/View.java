@@ -41,6 +41,7 @@ import javax.swing.border.EtchedBorder;
 public class View extends JFrame{
 	
 	public JPanel main;
+	public JLabel title;
 	
 	public JPanel exOne;
 	public JPanel exTwo;
@@ -75,6 +76,7 @@ public class View extends JFrame{
 	
 	public JTextField inputExpressionsExThree;
 	public JButton dealExpressionsExThree;
+	public JButton giveExpressionExThree;
 	public JButton resetExThree;
 	public JButton goBackExThree;
 	public JButton nextStep;
@@ -85,13 +87,17 @@ public class View extends JFrame{
 	
 	public JTextField inputExpressionsExFour;
 	public JButton dealExpressionsExFour;
+	public JButton giveExpressionExFour;
 	public JButton resetExFour;
 	public JButton undo;
+	public JButton progressExFour;
 	public JButton goBackExFour;
 	
 	public JTextField inputExpressionsExFive;
 	public JButton dealExpressionsExFive;
+	public JButton giveExpressionExFive;
 	public JButton resetExFive;
+	public JButton progressExFive;
 	public JButton goBackExFive;
 	
 	public View(){
@@ -107,7 +113,7 @@ public class View extends JFrame{
 		JPanel titlePanel = new JPanel(new BorderLayout());
 		titlePanel.setLayout(new GridBagLayout());
 		titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
-		JLabel title = new JLabel("Exercises about Tableau Logic");
+		this.title = new JLabel("Exercises about Tableau Logic");
 		title.setFont(new Font("Serif", Font.PLAIN, 35));
 		title.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titlePanel.add(title);
@@ -115,10 +121,10 @@ public class View extends JFrame{
 		//Right Top Corner
 		JLabel lecturer = new JLabel("Alexander BOLOTOV");
 		lecturer.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		JLabel lecture = new JLabel("Formal Introduction of Tableau");
+		JLabel lecture = new JLabel("Level Four Maths");
 		lecture.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		JLabel year = new JLabel("First year");
-		year.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		//JLabel year = new JLabel("First year");
+		//year.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		JLabel help = new JLabel("Help");
 	    help.setToolTipText("<html><img src=\"" + View.class.getResource("Rules.PNG") + "\">");
 	    help.setHorizontalAlignment(JLabel.CENTER);
@@ -134,7 +140,7 @@ public class View extends JFrame{
 		rightTopCorner.setLayout(new BoxLayout(rightTopCorner, BoxLayout.Y_AXIS));
 		rightTopCorner.add(lecturer);
 		rightTopCorner.add(lecture);
-		rightTopCorner.add(year);
+		//rightTopCorner.add(year);
 		rightTopCorner.add(helpPanel);
 		rightTopCorner.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		
@@ -259,6 +265,7 @@ public class View extends JFrame{
 		this.inputExpressionsExThree.setPreferredSize(new Dimension(500, 27));
 		this.inputExpressionsExThree.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExThree = new JButton();
+		this.giveExpressionExThree = new JButton();
 		this.resetExThree = new JButton();
 		this.modeOneStep = new JRadioButton("One Step");
 		this.modeDepthFirst = new JRadioButton("Depth-First");
@@ -273,6 +280,7 @@ public class View extends JFrame{
 		exerciseThreeTop.add(inputLabelThree);
 		exerciseThreeTop.add(this.inputExpressionsExThree);
 		exerciseThreeTop.add(this.dealExpressionsExThree);
+		exerciseThreeTop.add(this.giveExpressionExThree);
 		exerciseThreeTop.add(this.resetExThree);
 		exerciseThreeTop.add(this.modeOneStep);
 		exerciseThreeTop.add(this.modeDepthFirst);
@@ -291,14 +299,18 @@ public class View extends JFrame{
 		this.inputExpressionsExFour.setPreferredSize(new Dimension(500, 27));
 		this.inputExpressionsExFour.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExFour = new JButton();
+		this.giveExpressionExFour = new JButton();
 		this.resetExFour = new JButton();
 		this.undo = new JButton();
+		this.progressExFour = new JButton();
 		JPanel exerciseFourTop = new JPanel(new FlowLayout());
 		exerciseFourTop.add(inputLabelFour);
 		exerciseFourTop.add(this.inputExpressionsExFour);
 		exerciseFourTop.add(this.dealExpressionsExFour);
+		exerciseFourTop.add(this.giveExpressionExFour);
 		exerciseFourTop.add(this.resetExFour);
 		exerciseFourTop.add(this.undo);
+		exerciseFourTop.add(this.progressExFour);
 		this.goBackExFour = new JButton();
 				
 		this.panelExerciseFour = new JPanel(new BorderLayout());
@@ -312,12 +324,16 @@ public class View extends JFrame{
 		this.inputExpressionsExFive.setPreferredSize(new Dimension(500, 27));
 		this.inputExpressionsExFive.setMargin(new Insets(2, 5, 2, 5));
 		this.dealExpressionsExFive = new JButton();
+		this.giveExpressionExFive = new JButton();
 		this.resetExFive = new JButton();
+		this.progressExFive = new JButton();
 		JPanel exerciseFiveTop = new JPanel(new FlowLayout());
 		exerciseFiveTop.add(inputLabelOne);
 		exerciseFiveTop.add(this.inputExpressionsExFive);
 		exerciseFiveTop.add(this.dealExpressionsExFive);
+		exerciseFiveTop.add(this.giveExpressionExFive);
 		exerciseFiveTop.add(this.resetExFive);
+		exerciseFiveTop.add(this.progressExFive);
 		this.goBackExFive = new JButton();
 				
 		this.panelExerciseFive = new JPanel(new BorderLayout());

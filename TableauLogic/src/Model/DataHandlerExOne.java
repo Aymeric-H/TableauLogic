@@ -2,42 +2,19 @@ package Model;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class DataHandler {
+public class DataHandlerExOne extends DataHandler{
 
-	protected String path;
-	protected File file;
-	
-	/*
-	 * Constructor of the class DataHandler
-	 * path => the path (a String) of the file where the data is stored
-	 */
-	public DataHandler(String path) throws IOException{
-		// If the user has a H-Drive (it means he's certainly on the university computer) we store the data
-		// on this Drive
-		if (path.charAt(0) == 'H') {
-			this.path = Paths.get(path).toString();
-		}
-		// In the other case we store it on the current folder (the one of the app)
-		else{
-			this.path = Paths.get("").toAbsolutePath().toString() + "/" + path;
-		}
-		// We create the data file if it doesn't already exist
-		this.file = new File(this.path);
-		if (!this.file.exists()) {
-			this.file.createNewFile();
-		}
+	public DataHandlerExOne(String path) throws IOException {
+		super(path);
 	}
 	
 	/*
+	 * The Data File is like : expression - sub-formula : number of mistakes
 	 * Function which allows to write data in the data file
 	 * data => the data (as String) to write in the file
 	 */
@@ -219,4 +196,5 @@ public class DataHandler {
 		return res;
 	}
 	
+
 }

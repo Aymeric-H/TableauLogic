@@ -22,8 +22,8 @@ import javax.swing.JTextField;
 
 public class PopupViewChoseOperator extends JFrame{
 
-	String set;
-	Collection<String> operators;
+	public String set;
+	public Collection<String> operators;
 	public ArrayList<JButton> buttons;
 	public JPanel panelGeneral;
 	public JPanel panelOperator;

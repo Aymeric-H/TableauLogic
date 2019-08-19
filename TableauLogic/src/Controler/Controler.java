@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Observable;
@@ -32,9 +33,13 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.xml.crypto.Data;
 
 import Model.Coordinates;
 import Model.DataHandler;
+import Model.DataHandlerExFive;
+import Model.DataHandlerExFour;
+import Model.DataHandlerExOne;
 import Model.Set;
 import Model.Tableau;
 import Model.TreeMaker;
@@ -45,6 +50,8 @@ import View.View;
 import View.CorrectTruthTableView;
 import View.OneTruthTableLineView;
 import View.PopupViewChoseOperator;
+import View.PopupViewDataExFive;
+import View.PopupViewDataExFour;
 import View.PopupViewDataExOne;
 
 public class Controler {
@@ -53,8 +60,10 @@ public class Controler {
 	private View view;
 	private PopupViewChoseOperator popup;
 	private Stack<Tableau> stepsStack;
-	private ArrayList<String> examples;
-	private int indexOfExamples;
+	private ArrayList<String> examplesExOne;
+	private ArrayList<String> examplesExThree;
+	private ArrayList<String> examplesExFour;
+	private ArrayList<String> examplesExFive;
 	private String beginingOfPath;
 	
 	public Controler(Tableau tab){
@@ -62,7 +71,10 @@ public class Controler {
 		this.tableau = tab;
 		this.view = new View();
 		this.stepsStack = new Stack<Tableau>();
-		this.examples = new ArrayList<String>();
+		this.examplesExOne = new ArrayList<String>();
+		this.examplesExThree = new ArrayList<String>();
+		this.examplesExFour = new ArrayList<String>();
+		this.examplesExFive = new ArrayList<String>();
 		
 		// We define the Data storage space (H-Drive if the user is on a University 
 		// computer and the current folder if he is on his own computer)
@@ -86,13 +98,7 @@ public class Controler {
 		}
 		this.beginingOfPath = this.beginingOfPath + "LogicAppData/";
 		
-		
-		// We get the index of the next example to deal with (exercise one)
-		this.readIndexExOne();		
-		
-		// We read the file of examples for the first exercise and stock every expressions in the ArrayList we created
-		this.readFileExamplesExOne();
-		
+		// NEW MENUE
 		this.view.exOne.addMouseListener(new ActionExOne());
 		
 		//Exercise 1
@@ -112,8 +118,8 @@ public class Controler {
 		ActionDealWithExpressions actionDealWithExpressions = new ActionDealWithExpressions();
 		this.view.dealExpressionsExOne.setAction(actionDealWithExpressions);
 		
-		ActionGiveExpression actionGiveExpression = new ActionGiveExpression();
-		this.view.giveExpressionExOne.setAction(actionGiveExpression);
+		ActionGiveExpressionExOne actionGiveExpressionExOne = new ActionGiveExpressionExOne();
+		this.view.giveExpressionExOne.setAction(actionGiveExpressionExOne);
 		
 		ActionReset actionReset = new ActionReset();
 		this.view.resetExOne.setAction(actionReset);
@@ -166,6 +172,9 @@ public class Controler {
 		ActionDealWithExpressionsExThree actionDealWithExpressionsExThree = new ActionDealWithExpressionsExThree();
 		this.view.dealExpressionsExThree.setAction(actionDealWithExpressionsExThree);
 		
+		ActionGiveExpressionExThree actionGiveExpressionExThree = new ActionGiveExpressionExThree();
+		this.view.giveExpressionExThree.setAction(actionGiveExpressionExThree);
+		
 		ActionResetExThree actionResetExThree = new ActionResetExThree();
 		this.view.resetExThree.setAction(actionResetExThree);
 		
@@ -177,6 +186,7 @@ public class Controler {
 		
 		
 		//Exercise 4
+		
 		ActionExerciseFour actionExerciseFour = new ActionExerciseFour();
 		this.view.exerciseFour.setAction(actionExerciseFour);
 		
@@ -192,11 +202,17 @@ public class Controler {
 		ActionDealWithExpressionsExFour actionDealWithExpressionsExFour = new ActionDealWithExpressionsExFour();
 		this.view.dealExpressionsExFour.setAction(actionDealWithExpressionsExFour);
 		
+		ActionGiveExpressionExFour actionGiveExpressionExFour = new ActionGiveExpressionExFour();
+		this.view.giveExpressionExFour.setAction(actionGiveExpressionExFour);
+		
 		ActionResetExFour actionResetExFour = new ActionResetExFour();
 		this.view.resetExFour.setAction(actionResetExFour);
 		
 		ActionUndoExFour actionUndoExFour = new ActionUndoExFour();
 		this.view.undo.setAction(actionUndoExFour);
+		
+		ActionShowProgressExFour actionShowProgressExFour = new ActionShowProgressExFour();
+		this.view.progressExFour.setAction(actionShowProgressExFour);
 				
 		ActionGoBack actionGoBackExFour = new ActionGoBack();
 		this.view.goBackExFour.setAction(actionGoBackExFour);
@@ -218,8 +234,14 @@ public class Controler {
 		ActionDealWithExpressionsExFive actionDealWithExpressionsExFive = new ActionDealWithExpressionsExFive();
 		this.view.dealExpressionsExFive.setAction(actionDealWithExpressionsExFive);
 		
+		ActionGiveExpressionExFive actionGiveExpressionExFive = new ActionGiveExpressionExFive();
+		this.view.giveExpressionExFive.setAction(actionGiveExpressionExFive);
+		
 		ActionResetExFive actionResetExFive = new ActionResetExFive();
 		this.view.resetExFive.setAction(actionResetExFive);
+		
+		ActionShowProgressExFive actionShowProgressExFive = new ActionShowProgressExFive();
+		this.view.progressExFive.setAction(actionShowProgressExFive);
 		
 		ActionGoBack actionGoBackExFive = new ActionGoBack();
 		this.view.goBackExFive.setAction(actionGoBackExFive);
@@ -282,12 +304,16 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText("Truth Table");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.panelExerciseOne, BorderLayout.CENTER);
 			view.inputExpressionsExOne.requestFocusInWindow();
 			if (view.dealExpressionsExOne.isEnabled()) {
 				view.resetExOne.setEnabled(false);
+			}
+			if (examplesExOne.isEmpty()) {
+				readFileExamples("ExamplesTruthTable.txt", examplesExOne);
 			}
 			view.revalidate();
 			view.repaint();
@@ -312,6 +338,7 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText("Logical Structure of expressions");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.panelExerciseTwo, BorderLayout.CENTER);
@@ -342,6 +369,7 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText("Exploring different ways to construct a Tableau");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.panelExerciseThree, BorderLayout.CENTER);
@@ -349,6 +377,9 @@ public class Controler {
 			if (view.dealExpressionsExThree.isEnabled()) {
 				view.resetExThree.setEnabled(false);
 				view.nextStep.setEnabled(false);
+			}
+			if (examplesExThree.isEmpty()) {
+				readFileExamples("ExamplesTableau.txt", examplesExThree);
 			}
 			view.revalidate();
 			view.repaint();
@@ -373,6 +404,7 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText("Constructing a Full Tableau");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.panelExerciseFour, BorderLayout.CENTER);
@@ -380,6 +412,9 @@ public class Controler {
 			if (view.dealExpressionsExFour.isEnabled()) {
 				view.resetExFour.setEnabled(false);
 				view.undo.setEnabled(false);
+			}
+			if (examplesExFour.isEmpty()) {
+				readFileExamples("ExamplesTableau.txt", examplesExFour);
 			}
 			view.revalidate();
 			view.repaint();
@@ -400,12 +435,16 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText("Computing a single row in the Truth Table ");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.panelExerciseFive, BorderLayout.CENTER);
 			view.inputExpressionsExFive.requestFocusInWindow();
 			if (view.dealExpressionsExFive.isEnabled()) {
 				view.resetExFive.setEnabled(false);
+			}
+			if (examplesExFive.isEmpty()) {
+				readFileExamples("ExamplesTruthTable.txt", examplesExFive);
 			}
 			view.revalidate();
 			view.repaint();
@@ -429,6 +468,7 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("APPUYE BACK");
+			view.title.setText("Exercises about Tableau Logic");
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			view.main.add(view.exercisesPanel, BorderLayout.CENTER);
@@ -453,7 +493,6 @@ public class Controler {
 		
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			String expressions = view.inputExpressionsExOne.getText();
 			try {
 				try{
 					String input = view.inputExpressionsExOne.getText();
@@ -510,9 +549,8 @@ public class Controler {
 		public void actionPerformed(ActionEvent arg0) {
 			try {
 				//We setup the object which will read/write our data
-				DataHandler dataHandler = new DataHandler(beginingOfPath + "DataFileExOne.txt");
-				//dataHandler.write(this.input, this.truthTable.getNumberOfColumns() - this.truthTable.getNumberOfLiterals());
-				dataHandler.write(this.input, this.truthTable.getNodes());
+				DataHandlerExOne dataHandlerExOne = new DataHandlerExOne(beginingOfPath + "DataFileExOne.txt");
+				dataHandlerExOne.write(this.input, this.truthTable.getNodes());
 				//We collect the user answers
 				int numberOfColumns = this.truthTableView.answers[0].length;
 				int numberOfRows = this.truthTableView.answers.length;
@@ -534,7 +572,7 @@ public class Controler {
 						for (Integer index: mistakesIndex) {
 							this.truthTableView.answers[index][i].setForeground(Color.RED);
 						}
-						dataHandler.update(this.input, i, mistakesIndex.size());
+						dataHandlerExOne.update(this.input, i, mistakesIndex.size());
 						// If there's a mistake we stop the checking and tell the user he's wrong
 						throw new Exception("You've made a mistake !");
 					}
@@ -549,10 +587,10 @@ public class Controler {
 					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
 					// If the user succeeded in finding the right answer for the current level of formula
 					// (from the file of given formulas) we increase the level of the user by One
-					System.out.println(indexOfExamples);
-					if (!examples.isEmpty() && indexOfExamples < examples.size() && examples.get(indexOfExamples).equals(input)) {
+					int indexOfExamples = readIndex(1);
+					if (!examplesExOne.isEmpty() && indexOfExamples < examplesExOne.size() && examplesExOne.get(indexOfExamples).equals(input)) {
 						indexOfExamples++;
-						updateIndexExOne(indexOfExamples);
+						updateIndex(1);
 					}
 					view.revalidate();
 					view.repaint();
@@ -575,16 +613,16 @@ public class Controler {
 	/*
 	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
 	 */
-	public class ActionGiveExpression extends AbstractAction implements Observer{
+	public class ActionGiveExpressionExOne extends AbstractAction implements Observer{
 		
-		public ActionGiveExpression() {
-			this.putValue(Action.NAME, "Give an expression");
+		public ActionGiveExpressionExOne() {
+			this.putValue(Action.NAME, "Input Formula");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				view.inputExpressionsExOne.setText(examples.get(indexOfExamples));
+				view.inputExpressionsExOne.setText(examplesExOne.get(readIndex(1)));
 			} catch (Exception e2) {
 				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
 			}
@@ -598,37 +636,16 @@ public class Controler {
 	}
 	
 	/*
-	 * Function which allows to read the index of the next expression to give to the user (Exercise 1)
+	 * Function which allows to read the Files with all the examples for the given exercise
+	 * file => the name of the file to read
+	 * examples => the list where the examples are stored
 	 */
-	public void readIndexExOne(){
-        try (BufferedReader br = new BufferedReader(new FileReader(new File(this.beginingOfPath + "Index.txt")))) {
-            // read line by line
-            this.indexOfExamples = Integer.valueOf(br.readLine());
-        } catch (IOException e) {
-            System.err.format("IOException: %s%n", e);
-        }
-	}
-	
-	/*
-	 * Function which allows to update the index of the next expression to give to the user (Exercise 1)
-	 * index => the updated value of the index
-	 */
-	public void updateIndexExOne(int index) throws IOException{
-		File file = new File(this.beginingOfPath + "Index.txt");
-		FileWriter fileWriter = new FileWriter(file);
-		fileWriter.write(String.valueOf(index));
-		fileWriter.close();
-	}
-	
-	/*
-	 * Function which allows to read the Files with all the examples (for the first exercise)
-	 */
-	public void readFileExamplesExOne(){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("Examples.txt")))) {
+	public void readFileExamples(String file, ArrayList<String> examples){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(file)))) {
             // read line by line
             String line;
             while ((line = br.readLine()) != null) {
-            	this.examples.add(line);
+            	examples.add(line);
             }
         } catch (IOException e) {
             System.err.format("IOException: %s%n", e);
@@ -646,11 +663,10 @@ public class Controler {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			DataHandler dataHandler;
 			try {
-				dataHandler = new DataHandler(beginingOfPath + "DataFileExOne.txt");
-				PopupViewDataExOne popup = new PopupViewDataExOne(dataHandler.getMistakes(),
-						dataHandler.getExamplesOneShot(), dataHandler.getMaxNumberOfColumns());
+				DataHandlerExOne dataHandlerExOne = new DataHandlerExOne(beginingOfPath + "DataFileExOne.txt");
+				PopupViewDataExOne popup = new PopupViewDataExOne(dataHandlerExOne.getMistakes(),
+						dataHandlerExOne.getExamplesOneShot(), dataHandlerExOne.getMaxNumberOfColumns());
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
@@ -758,6 +774,10 @@ public class Controler {
 					else{
 						JOptionPane.showMessageDialog(null, "The Tableau is correct !");
 					}
+					int indexOfExamples = readIndex(3);
+					if (!examplesExThree.isEmpty() && indexOfExamples < examplesExThree.size() && examplesExThree.get(indexOfExamples).equals(expressions)){
+						updateIndex(3);
+					}
 				}
 			}
 			catch (StringIndexOutOfBoundsException npe){
@@ -772,6 +792,31 @@ public class Controler {
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");
 		}	
+	}
+	
+	/*
+	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
+	 */
+	public class ActionGiveExpressionExThree extends AbstractAction implements Observer{
+		
+		public ActionGiveExpressionExThree() {
+			this.putValue(Action.NAME, "Input Formula");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				view.inputExpressionsExThree.setText(examplesExThree.get(readIndex(3)));
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			
+		}
+		
 	}
 	
 	/*
@@ -790,6 +835,14 @@ public class Controler {
 				tableau = new Tableau();
 				tableau.setRoot(new Set(expressions));
 				tableau.applyRule();
+				// If the Tableau had only one rule to apply in the examples given by the program we directly 
+				// update the index for this exercise
+				if (tableau.accessibleSets.isEmpty()) {
+					int indexOfExamples = readIndex(4);
+					if (!examplesExFour.isEmpty() && indexOfExamples < examplesExFour.size() && examplesExFour.get(indexOfExamples).equals(expressions)){
+						updateIndex(4);
+					}
+				}
 				JPanel tabView = tableau.getView();
 				tabView.addMouseListener(new SetSelected());
 				
@@ -803,13 +856,17 @@ public class Controler {
 				view.resetExFour.setEnabled(true);
 				view.revalidate();
 				view.repaint();
+				
+				// We link this to the data handler
+				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
+				dataHandlerExFour.write(expressions, 2);
 			}
 			catch (StringIndexOutOfBoundsException npe){
 				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
 			}
 			catch (Exception e) {
 				JOptionPane.showMessageDialog(null, e.getMessage());
-			}
+			}			
 		}
 
 		@Override
@@ -847,24 +904,58 @@ public class Controler {
 		}
 		
 		@Override
+		// We get the coordinates of the mouse click and deal with the Set which it corresponds to
 		public void mouseClicked(MouseEvent e) {
+			
 			Coordinates coords = tableau.getCoordinates(e.getX(), e.getY());
 			Set set = tableau.getSetSelected(coords);
+			
 			if (set != null && !set.allLiterals()) {
 				HashMap<Integer, String> operatorsMap = set.getOperators();
+				
+				// We create a popup view so the user can choose which operator he wants to apply on the selected Set
 				popup = new PopupViewChoseOperator(set.toString(), operatorsMap.values());
 				Object[] indexList = operatorsMap.keySet().toArray();
 				int tmp = 0;
+				
+				// We give all the operators of the Set to the popup view
 				for (JButton button : popup.buttons) {
 					button.addMouseListener(new ChoseOperator(popup, (int) indexList[tmp], coords));
 					tmp ++;
 				}
+				
 				popup.setVisible(true);
 			}
+			
 			tableau.updateContradictions();
 			view.revalidate();
 			view.repaint();
 		}
+	}
+	
+	/*
+	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
+	 */
+	public class ActionGiveExpressionExFour extends AbstractAction implements Observer{
+		
+		public ActionGiveExpressionExFour() {
+			this.putValue(Action.NAME, "Input Formula");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				view.inputExpressionsExFour.setText(examplesExFour.get(readIndex(4)));
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			
+		}
+		
 	}
 	
 	/*
@@ -893,7 +984,7 @@ public class Controler {
 				this.popup.labelInfo.setText(this.popup.labelInfo.getText() + chosenOperator);
 				this.popup.revalidate();
 				this.popup.repaint();
-				this.popup.checkAnticipation.addMouseListener(new CheckAnticipationOperatorResult(popup, index, coords));
+				this.popup.checkAnticipation.addMouseListener(new CheckAnticipationOperatorResult(popup, index, coords, chosenOperator));
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
@@ -936,21 +1027,29 @@ public class Controler {
 		PopupViewChoseOperator popup;
 		int index;
 		Coordinates coords;
+		String operator;
 		
-		public CheckAnticipationOperatorResult(PopupViewChoseOperator popup, int index, Coordinates coords) {
+		public CheckAnticipationOperatorResult(PopupViewChoseOperator popup, int index, Coordinates coords, String operator) {
 			this.popup = popup;
 			this.index = index;
 			this.coords = coords;
+			this.operator = operator;
 		}
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
+				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
 				Set simulatedSet = tableau.simulateRuleForThisSet(coords, index);
+				// The substring method is used to get only the expression (the root) and not what it added by
+				// the toString() method of the Set class
+				String expression = tableau.getRoot().toString().substring(1,tableau.getRoot().toString().length() - 4);
 				boolean checked = false;
+				// We check the answer of the user
 				if (simulatedSet.getSecond() == null) {
 					if (!this.popup.inputTwo.getText().equals("")) {
-						JOptionPane.showMessageDialog(null, "Too many children anticipated !");
+						dataHandlerExFour.update(expression, 1, 1);
+						throw new Exception("Too many children anticipated !");
 					}
 					else{
 						checked = simulatedSet.getFirst().isAnticipationRight(this.popup.inputOne.getText());
@@ -960,15 +1059,23 @@ public class Controler {
 					checked = simulatedSet.getFirst().isAnticipationRight(this.popup.inputOne.getText())
 					&& simulatedSet.getSecond().isAnticipationRight(this.popup.inputTwo.getText());
 				}
+				// If the user anticipated well we apply the rule onto the "real" Tableau
 				if (checked) {
 					stepsStack.push(tableau.clone());
 					view.undo.setEnabled(true);
 					tableau.applyRuleForThisSet(this.coords, this.index);
 					tableau.accessibleSets.remove(this.coords);
+					if (tableau.accessibleSets.isEmpty()) {
+						updateIndex(4);
+					}
 					this.popup.dispose();
 				}
 				else {
-					JOptionPane.showMessageDialog(null, "Wrong Anticipation !");
+					dataHandlerExFour.update(expression, 1, 1);
+					throw new Exception("Wrong Anticipation !");
+				}
+				if (wrongRuleApplied(this.operator)) {
+					dataHandlerExFour.update(expression, 2, 1);
 				}
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
@@ -978,6 +1085,29 @@ public class Controler {
 			view.repaint();
 		}
 
+		public boolean wrongRuleApplied(String operator){
+			Collection<String> operators = this.popup.operators;
+			if (isBetaRule(operator)) {
+				for (String op : operators) {
+					if (isAlphaRule(op)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		public boolean isAlphaRule(String operator){
+			operator= operator.replace(" ", "");
+			return operator.equals("T[&]") || operator.equals("F[v]") || operator.equals("F[>]") ||
+					operator.equals("T[~]") || operator.equals("F[~]");
+		}
+		
+		public boolean isBetaRule(String operator){
+			operator = operator.replace(" ", "");
+			return operator.equals("F[&]") || operator.equals("T[v]") || operator.equals("T[>]");
+		}
+		
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
@@ -1005,6 +1135,33 @@ public class Controler {
 	}
 	
 	/*
+	 * Allows to display the progress of the user for the fourth exercise (in a popup frame)
+	 */
+	public class ActionShowProgressExFour extends AbstractAction implements Observer {
+		
+		public ActionShowProgressExFour() {
+			this.putValue(Action.NAME, "Your Progress");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
+				PopupViewDataExFour popup = new PopupViewDataExFour(dataHandlerExFour.getData());
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	/*
 	 * When the user clicks on the "Deal with it" button it gives an empty line of the truth table
 	 * of the given input expression
 	 */
@@ -1022,7 +1179,7 @@ public class Controler {
 					TruthTable truthTable = new TruthTable(input);
 					OneTruthTableLineView oneTruthTableLineView = new OneTruthTableLineView(truthTable);
 					JScrollPane scrollPane = new JScrollPane(oneTruthTableLineView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-					oneTruthTableLineView.check.addMouseListener(new CheckAnswersLineTruthTable(truthTable, oneTruthTableLineView, view));
+					oneTruthTableLineView.check.addMouseListener(new CheckAnswersLineTruthTable(truthTable, oneTruthTableLineView, view, input));
 					view.panelExerciseFive.add(scrollPane, BorderLayout.CENTER);
 					view.dealExpressionsExFive.setEnabled(false);
 					view.resetExFive.setEnabled(true);
@@ -1048,6 +1205,31 @@ public class Controler {
 	}
 	
 	/*
+	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
+	 */
+	public class ActionGiveExpressionExFive extends AbstractAction implements Observer{
+		
+		public ActionGiveExpressionExFive() {
+			this.putValue(Action.NAME, "Input Formula");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				view.inputExpressionsExFive.setText(examplesExFive.get(readIndex(5)));
+			} catch (Exception e2) {
+				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			
+		}
+		
+	}
+	
+	/*
 	 * Listener for the check button of the truth table line
 	 * It allows to check the user's answers and tells whether he's all right or not
 	 */
@@ -1056,25 +1238,34 @@ public class Controler {
 		TruthTable truthTable;
 		OneTruthTableLineView oneTruthTableLineView;
 		View view;
+		String input;
 		
-		public CheckAnswersLineTruthTable(TruthTable truthTable, OneTruthTableLineView oneTruthTableLineView, View view) {
+		public CheckAnswersLineTruthTable(TruthTable truthTable, OneTruthTableLineView oneTruthTableLineView, View view, String input) {
 			this.truthTable = truthTable;
 			this.oneTruthTableLineView = oneTruthTableLineView;
 			this.view = view;
+			this.input = input;
 		}
 		
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void mouseClicked(MouseEvent e) {		
 			String[] answers = new String[this.oneTruthTableLineView.answers.length];
 			for (int i = 0; i < this.oneTruthTableLineView.answers.length; i++) {
 				answers[i] = this.oneTruthTableLineView.answers[i].getText();
 			}
 			try {
+				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
 				if (this.truthTable.checkAnswersForLine(answers)) {
 					JOptionPane.showMessageDialog(null, "Correct answer !");
+					dataHandlerExFive.writeCorrectAnswer(this.input, this.truthTable.getLiterals().keySet(), this.truthTable.getNodes(), answers);
+					int indexOfExamples = readIndex(5);
+					if (!examplesExFive.isEmpty() && indexOfExamples < examplesExFive.size() && examplesExFive.get(indexOfExamples).equals(this.input)){
+						updateIndex(5);
+					}
 				}
 				else{
 					JOptionPane.showMessageDialog(null, "Your answer is false !");
+					dataHandlerExFive.write(this.input, this.truthTable.getLiterals().keySet(), this.truthTable.getNodes(), answers);
 				}
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
@@ -1106,6 +1297,34 @@ public class Controler {
 		}
 		
 	}
+	
+	/*
+	 * Allows to display the progress of the user for the first exercise (in a popup frame)
+	 */
+	public class ActionShowProgressExFive extends AbstractAction implements Observer {
+		
+		public ActionShowProgressExFive() {
+			this.putValue(Action.NAME, "Your Progress");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
+				PopupViewDataExFive popup = new PopupViewDataExFive(dataHandlerExFive.getData(), dataHandlerExFive.getMaxNumberOfColumns());
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	
 	/*
 	 * When the user click on the button "Reset" it resets everything related to the current exercise
@@ -1342,6 +1561,57 @@ public class Controler {
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");
 		}
+	}
+	
+	/*
+	 * Function which allows to read the index of the next expression to give to the user (Exercise 1)
+	 * exercise => the number of the exercise to deal with
+	 */
+	public int readIndex(int exercise) throws Exception {
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(this.beginingOfPath + "Index.txt")))) {
+            // read line by line
+            String line = br.readLine();
+            int cpt = 1;
+            while (line != null) {
+				if (cpt == exercise) {
+					return Integer.valueOf(line);
+				}
+				cpt++;
+				line = br.readLine();
+			}
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
+        throw new Exception("This exercise doesn't exist !");
+	}
+	
+	/*
+	 * Function which allows to update the index of the next expression to give to the user (Exercise 1)
+	 * exercise => the number of the exercise to deal with
+	 * newIndex => the updated value of the index
+	 */
+	public void updateIndex(int exercise) throws IOException{
+		String content = "";
+		File file = new File(this.beginingOfPath + "Index.txt");
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(file.getPath()));
+		String line = bufferedReader.readLine();
+		int cpt = 1;
+		while (line != null) {
+			if (cpt == exercise) {
+				int value = Integer.valueOf(line) + 1;
+				content = content + value + System.getProperty("line.separator");
+			}
+			else{
+				content = content + line + System.getProperty("line.separator");
+			}
+			cpt ++;
+			line = bufferedReader.readLine();
+		}
+		bufferedReader.close();
+		
+		FileWriter fileWriter = new FileWriter(file);
+		fileWriter.write(content);
+		fileWriter.close();
 	}
 	
 }

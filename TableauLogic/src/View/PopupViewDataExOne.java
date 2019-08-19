@@ -48,17 +48,15 @@ public class PopupViewDataExOne extends JFrame {
 		correctAnswersLabel.setFont(new Font("Serif", Font.PLAIN, 25));
 		correctAnswersPanel.add(correctAnswersLabel, BorderLayout.NORTH);
 		
-		// Calculate the number of rows for the grid layout
 		JPanel correctAnswersPanelCenter = new JPanel();
-		int numberOfRows = 0;
-		if (correctAnswers.size() % 2 == 0) {
-			numberOfRows = correctAnswers.size() / 2;
-		}
-		else{
-			numberOfRows = (correctAnswers.size() + 1) / 2;
-		}
-		// We display a grid Layout with two columns
-		correctAnswersPanelCenter.setLayout(new GridLayout(numberOfRows, 2));
+		correctAnswersPanelCenter.setLayout(new GridLayout(1, 2));
+		JPanel correctAnswersFirstColumn = new JPanel();
+		correctAnswersFirstColumn.setLayout(new BoxLayout(correctAnswersFirstColumn, BoxLayout.Y_AXIS));
+		JPanel correctAnswersSecondColumn = new JPanel();
+		correctAnswersSecondColumn.setLayout(new BoxLayout(correctAnswersSecondColumn, BoxLayout.Y_AXIS));
+		correctAnswersPanelCenter.add(correctAnswersFirstColumn);
+		correctAnswersPanelCenter.add(correctAnswersSecondColumn);
+		
 		JScrollPane scrollPaneCorrectAnswers = new JScrollPane(correctAnswersPanelCenter, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPaneCorrectAnswers.setBorder(BorderFactory.createEmptyBorder());
 		correctAnswersPanel.add(scrollPaneCorrectAnswers, BorderLayout.CENTER);
@@ -66,12 +64,19 @@ public class PopupViewDataExOne extends JFrame {
 		// We add the expressions with which the user made no mistakes to the panel
 		// It fills the panel with one expression in the first column then one in the second and then it continues the
 		// same way for each rows till there's no more expressions to display
+		int cpt = 0;
 		for (String correctAnswer : correctAnswers) {
 			JLabel correctAnswerLabel = new JLabel(correctAnswer.replace("", " "));
-			correctAnswerLabel.setBorder(BorderFactory.createEmptyBorder(5, 30, 5, 5));
+			correctAnswerLabel.setBorder(BorderFactory.createEmptyBorder(20, 30, 15, 5));
 			FontMetrics fm = correctAnswerLabel.getFontMetrics(correctAnswerLabel.getFont());
 			correctAnswerLabel.setPreferredSize(new Dimension(fm.stringWidth(correctAnswer), fm.getHeight() + 35));
-			correctAnswersPanelCenter.add(correctAnswerLabel);
+			if (cpt % 2 == 0) {
+				correctAnswersFirstColumn.add(correctAnswerLabel);
+			}
+			else{
+				correctAnswersSecondColumn.add(correctAnswerLabel);
+			}
+			cpt ++;
 		}
 		
 		centerPanel.add(correctAnswersPanel);
