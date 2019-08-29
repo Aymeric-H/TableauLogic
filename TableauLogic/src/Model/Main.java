@@ -94,6 +94,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		*/
+		
 		//Tests of the MVC
 		
 		try {
@@ -108,18 +109,5 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		/*
-		try {
-			TruthTable truthTable = new TruthTable("A & B");
-			System.out.println(truthTable.getLiterals());
-			System.out.println(truthTable.getNodes());
-			System.out.println(truthTable.tableToString());
-			truthTable.buildTable();
-			System.out.println(truthTable.tableToString());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 	}
 }

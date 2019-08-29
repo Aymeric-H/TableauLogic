@@ -348,13 +348,17 @@ public class Set {
 		input = input.substring(2,input.length()-2);
 		ArrayList<String> inputFormulas = new ArrayList<String>(Arrays.asList(input.split(", ")));
 		ArrayList<String> simulatedSetFormulas = new ArrayList<String>(Arrays.asList(this.formulas.toString().substring(1, this.formulas.toString().length() - 1).split(", ")));
+		if (inputFormulas.size() != simulatedSetFormulas.size()) {
+			return false;
+		}
 		for (String formula : inputFormulas) {
 			if (formula.charAt(0) != 'T' && formula.charAt(0) != 'F') {
 				throw new Exception("Enter a valid value for your formula (T or F)");
 			}
 			boolean res = false;
 			for (String simulatedFormula : simulatedSetFormulas) {
-				if (formula.equals(simulatedFormula)) {
+				if (formula.equals(simulatedFormula) && !res) {
+					simulatedFormula = " - ";
 					res = true;
 				}
 			}

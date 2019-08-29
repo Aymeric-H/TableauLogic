@@ -33,13 +33,14 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.xml.crypto.Data;
 
 import Model.Coordinates;
 import Model.DataHandler;
+import Model.DataHandlerExTwo;
 import Model.DataHandlerExFive;
-import Model.DataHandlerExFour;
-import Model.DataHandlerExOne;
+import Model.DataHandlerExThree;
 import Model.Set;
 import Model.Tableau;
 import Model.TreeMaker;
@@ -48,11 +49,15 @@ import View.TableauView;
 import View.TruthTableView;
 import View.View;
 import View.CorrectTruthTableView;
+import View.Exercise;
+import View.ExerciseFive;
+import View.ExerciseWithData;
 import View.OneTruthTableLineView;
+import View.PopupExerciseInstructions;
 import View.PopupViewChoseOperator;
+import View.PopupViewDataExTwo;
 import View.PopupViewDataExFive;
-import View.PopupViewDataExFour;
-import View.PopupViewDataExOne;
+import View.PopupViewDataExThree;
 
 public class Controler {
 
@@ -60,10 +65,9 @@ public class Controler {
 	private View view;
 	private PopupViewChoseOperator popup;
 	private Stack<Tableau> stepsStack;
-	private ArrayList<String> examplesExOne;
-	private ArrayList<String> examplesExThree;
-	private ArrayList<String> examplesExFour;
-	private ArrayList<String> examplesExFive;
+	private ArrayList<String> examplesTruthTable;
+	private ArrayList<String> examplesTableau;
+
 	private String beginingOfPath;
 	
 	public Controler(Tableau tab){
@@ -71,10 +75,8 @@ public class Controler {
 		this.tableau = tab;
 		this.view = new View();
 		this.stepsStack = new Stack<Tableau>();
-		this.examplesExOne = new ArrayList<String>();
-		this.examplesExThree = new ArrayList<String>();
-		this.examplesExFour = new ArrayList<String>();
-		this.examplesExFive = new ArrayList<String>();
+		this.examplesTruthTable = new ArrayList<String>();
+		this.examplesTableau = new ArrayList<String>();
 		
 		// We define the Data storage space (H-Drive if the user is on a University 
 		// computer and the current folder if he is on his own computer)
@@ -90,7 +92,10 @@ public class Controler {
 			if (!indexFile.exists()) {
 				indexFile.createNewFile();
 				FileWriter fileWriter = new FileWriter(indexFile);
-				fileWriter.write("0");
+				// We set the index to 0 for each existing exercise (currently 5)
+				for (int i = 0; i < 5; i++) {
+					fileWriter.write("0" + System.getProperty("line.separator"));
+				}
 				fileWriter.close();
 			}
 		} catch (IOException e) {
@@ -98,170 +103,206 @@ public class Controler {
 		}
 		this.beginingOfPath = this.beginingOfPath + "LogicAppData/";
 		
-		// NEW MENUE
-		this.view.exOne.addMouseListener(new ActionExOne());
 		
-		//Exercise 1
-		
-		ActionExerciseOne actionExerciseOne = new ActionExerciseOne();
-		this.view.exerciseOne.setAction(actionExerciseOne);
-		
-		this.view.inputExpressionsExOne.addKeyListener(new KeyAdapter() {
-	        @Override
-	        public void keyPressed(KeyEvent e) {
-	            if(e.getKeyCode() == KeyEvent.VK_ENTER){
-	                view.dealExpressionsExOne.doClick();
-	            }
-	        }
-	    });
-		
-		ActionDealWithExpressions actionDealWithExpressions = new ActionDealWithExpressions();
-		this.view.dealExpressionsExOne.setAction(actionDealWithExpressions);
-		
-		ActionGiveExpressionExOne actionGiveExpressionExOne = new ActionGiveExpressionExOne();
-		this.view.giveExpressionExOne.setAction(actionGiveExpressionExOne);
-		
-		ActionReset actionReset = new ActionReset();
-		this.view.resetExOne.setAction(actionReset);
-		
-		ActionShowProgressExOne actionShowProgressExOne = new ActionShowProgressExOne();
-		this.view.progressExOne.setAction(actionShowProgressExOne);
-		
-		ActionGoBack actionGoBack = new ActionGoBack();
-		this.view.goBackExOne.setAction(actionGoBack);
+		// Setting the menu controllers
+		this.view.exOne.addMouseListener(new ActionExercise(view.exerciseOnePanel));
+		this.view.exTwo.addMouseListener(new ActionExercise(view.exerciseTwoPanel, "ExamplesTruthTable.txt", this.examplesTruthTable));
+		this.view.exThree.addMouseListener(new ActionExercise(view.exerciseThreePanel, "ExamplesTruthTable.txt", this.examplesTruthTable));
+		this.view.exFour.addMouseListener(new ActionExercise(view.exerciseFourPanel, "ExamplesTableau.txt", this.examplesTableau));
+		this.view.exFive.addMouseListener(new ActionExercise(view.exerciseFivePanel, "ExamplesTableau.txt", this.examplesTableau));
 		
 		
-		//Exercise 2
+		// Initialization of all the exercises controllers
 		
-		ActionExerciseTwo actionExerciseTwo = new ActionExerciseTwo();
-		this.view.exerciseTwo.setAction(actionExerciseTwo);
+		// Exercise One
+		// Adding the controller for the deal with it button (executing the exercise action)
+		ActionDealWithExpressionsExOne actionDealWithExpressionsExOne = new ActionDealWithExpressionsExOne();
+		this.view.exerciseOnePanel.dealExpressions.setAction(actionDealWithExpressionsExOne);
 		
-		this.view.inputExpressionsExTwo.addKeyListener(new KeyAdapter() {
-	        @Override
-	        public void keyPressed(KeyEvent e) {
-	            if(e.getKeyCode() == KeyEvent.VK_ENTER){
-	                view.dealExpressionsExTwo.doClick();
-	            }
-	        }
-	    });
+		// Adding the key listener which allows to click on the deal with it button when we press the enter button
+		// with focus on the text field
+		this.view.exerciseOnePanel.inputExpressions.addKeyListener(new KeyAdapterInputExpressions(this.view.exerciseOnePanel));
 		
+		// Adding the controller for the reset button
+		ActionResetExercise actionResetExerciseOne = new ActionResetExercise(this.view.exerciseOnePanel);
+		this.view.exerciseOnePanel.reset.setAction(actionResetExerciseOne);
+		
+		// Adding the controller for the go back (to the main menu) button
+		ActionGoBack actionGoBackExOne = new ActionGoBack();
+		this.view.exerciseOnePanel.goBack.setAction(actionGoBackExOne);
+		
+		
+		// Exercise Two
+		// Adding the controller for the deal with it button (executing the exercise action)
 		ActionDealWithExpressionsExTwo actionDealWithExpressionsExTwo = new ActionDealWithExpressionsExTwo();
-		this.view.dealExpressionsExTwo.setAction(actionDealWithExpressionsExTwo);
+		this.view.exerciseTwoPanel.dealExpressions.setAction(actionDealWithExpressionsExTwo);
 		
-		ActionResetExTwo actionResetExTwo = new ActionResetExTwo();
-		this.view.resetExTwo.setAction(actionResetExTwo);
+		// Adding the key listener which allows to click on the deal with it button when we press the enter button
+		// with focus on the text field
+		this.view.exerciseTwoPanel.inputExpressions.addKeyListener(new KeyAdapterInputExpressions(this.view.exerciseTwoPanel));
 		
+		// Adding the controller for the button input formula (which gives an input expression)
+		ActionGiveExpression actionGiveExpressionExTwo = new ActionGiveExpression(2, examplesTruthTable, view.exerciseTwoPanel.inputExpressions);
+		this.view.exerciseTwoPanel.giveExpression.setAction(actionGiveExpressionExTwo);
+		
+		// Adding the controller for the reset button
+		ActionResetExercise actionResetExTwo = new ActionResetExercise(this.view.exerciseTwoPanel);
+		this.view.exerciseTwoPanel.reset.setAction(actionResetExTwo);
+		
+		// Adding the controller to the progress button (which allows to show the data)
+		ActionShowProgressExTwo actionShowProgressExTwo = new ActionShowProgressExTwo();
+		this.view.exerciseTwoPanel.progress.setAction(actionShowProgressExTwo);
+		
+		// Adding the controller for the go back (to the main menu) button
 		ActionGoBack actionGoBackExTwo = new ActionGoBack();
-		this.view.goBackExTwo.setAction(actionGoBackExTwo);
+		this.view.exerciseTwoPanel.goBack.setAction(actionGoBackExTwo);
 		
 		
-		//Exercise 3
-		
-		ActionExerciseThree actionExerciseThree = new ActionExerciseThree();
-		this.view.exerciseThree.setAction(actionExerciseThree);
-		
-		this.view.inputExpressionsExThree.addKeyListener(new KeyAdapter() {
-		       @Override
-		       public void keyPressed(KeyEvent e) {
-		           if(e.getKeyCode() == KeyEvent.VK_ENTER){
-		               view.dealExpressionsExThree.doClick();
-		           }
-		       }
-		   });
-		
+		// Exercise Three
+		// Adding the controller for the deal with it button (executing the exercise action)
 		ActionDealWithExpressionsExThree actionDealWithExpressionsExThree = new ActionDealWithExpressionsExThree();
-		this.view.dealExpressionsExThree.setAction(actionDealWithExpressionsExThree);
+		this.view.exerciseThreePanel.dealExpressions.setAction(actionDealWithExpressionsExThree);
 		
-		ActionGiveExpressionExThree actionGiveExpressionExThree = new ActionGiveExpressionExThree();
-		this.view.giveExpressionExThree.setAction(actionGiveExpressionExThree);
+		// Adding the key listener which allows to click on the deal with it button when we press the enter button
+		// with focus on the text field
+		this.view.exerciseThreePanel.inputExpressions.addKeyListener(new KeyAdapterInputExpressions(this.view.exerciseThreePanel));
 		
-		ActionResetExThree actionResetExThree = new ActionResetExThree();
-		this.view.resetExThree.setAction(actionResetExThree);
+		// Adding the controller for the button input formula (which gives an input expression)
+		ActionGiveExpression actionGiveExpressionExThree = new ActionGiveExpression(3, examplesTruthTable, view.exerciseThreePanel.inputExpressions);
+		this.view.exerciseThreePanel.giveExpression.setAction(actionGiveExpressionExThree);
+
+		// Adding the controller for the reset button
+		ActionResetExercise actionResetExThree = new ActionResetExercise(this.view.exerciseThreePanel);
+		this.view.exerciseThreePanel.reset.setAction(actionResetExThree);
 		
-		ActionNextStep actionNextStep = new ActionNextStep();
-		this.view.nextStep.setAction(actionNextStep);
+		// Adding the controller to the progress button (which allows to show the data)
+		ActionShowProgressExThree actionShowProgressExThree = new ActionShowProgressExThree();
+		this.view.exerciseThreePanel.progress.setAction(actionShowProgressExThree);
 		
+		// Adding the controller for the go back (to the main menu) button
 		ActionGoBack actionGoBackExThree = new ActionGoBack();
-		this.view.goBackExThree.setAction(actionGoBackExThree);
+		this.view.exerciseThreePanel.goBack.setAction(actionGoBackExThree);
 		
 		
-		//Exercise 4
-		
-		ActionExerciseFour actionExerciseFour = new ActionExerciseFour();
-		this.view.exerciseFour.setAction(actionExerciseFour);
-		
-		this.view.inputExpressionsExFour.addKeyListener(new KeyAdapter() {
-		       @Override
-		       public void keyPressed(KeyEvent e) {
-		           if(e.getKeyCode() == KeyEvent.VK_ENTER){
-		               view.dealExpressionsExFour.doClick();
-		           }
-		       }
-		});
-		
+		// Exercise Four
+		// Adding the controller for the deal with it button (executing the exercise action)
 		ActionDealWithExpressionsExFour actionDealWithExpressionsExFour = new ActionDealWithExpressionsExFour();
-		this.view.dealExpressionsExFour.setAction(actionDealWithExpressionsExFour);
+		this.view.exerciseFourPanel.dealExpressions.setAction(actionDealWithExpressionsExFour);
 		
-		ActionGiveExpressionExFour actionGiveExpressionExFour = new ActionGiveExpressionExFour();
-		this.view.giveExpressionExFour.setAction(actionGiveExpressionExFour);
+		// Adding the key listener which allows to click on the deal with it button when we press the enter button
+		// with focus on the text field
+		this.view.exerciseFourPanel.inputExpressions.addKeyListener(new KeyAdapterInputExpressions(this.view.exerciseFourPanel));
 		
-		ActionResetExFour actionResetExFour = new ActionResetExFour();
-		this.view.resetExFour.setAction(actionResetExFour);
+		// Adding the controller for the button input formula (which gives an input expression)
+		ActionGiveExpression actionGiveExpressionExFour = new ActionGiveExpression(4, examplesTableau, view.exerciseFourPanel.inputExpressions);
+		this.view.exerciseFourPanel.giveExpression.setAction(actionGiveExpressionExFour);
 		
-		ActionUndoExFour actionUndoExFour = new ActionUndoExFour();
-		this.view.undo.setAction(actionUndoExFour);
+		// Adding the controller for the reset button
+		ActionResetExercise actionResetExFour = new ActionResetExercise(this.view.exerciseFourPanel);
+		this.view.exerciseFourPanel.reset.setAction(actionResetExFour);
 		
-		ActionShowProgressExFour actionShowProgressExFour = new ActionShowProgressExFour();
-		this.view.progressExFour.setAction(actionShowProgressExFour);
-				
+		// Adding of the controller which allows to print the Tableau step by step
+		ActionNextStepExFour actionNextStepExFour = new ActionNextStepExFour();
+		this.view.exerciseFourPanel.nextStep.setAction(actionNextStepExFour);
+		
+		// Adding the controller for the go back (to the main menu) button
 		ActionGoBack actionGoBackExFour = new ActionGoBack();
-		this.view.goBackExFour.setAction(actionGoBackExFour);
+		this.view.exerciseFourPanel.goBack.setAction(actionGoBackExFour);
 		
-		//Exercise 5
 		
-		ActionExerciseFive actionExerciseFive = new ActionExerciseFive();
-		this.view.exerciseFive.setAction(actionExerciseFive);
-		
-		this.view.inputExpressionsExFive.addKeyListener(new KeyAdapter() {
-		       @Override
-		       public void keyPressed(KeyEvent e) {
-		           if(e.getKeyCode() == KeyEvent.VK_ENTER){
-		               view.dealExpressionsExFive.doClick();
-		           }
-		       }
-		});
-				
+		// Exercise Five
+		// Adding the controller for the deal with it button (executing the exercise action)
 		ActionDealWithExpressionsExFive actionDealWithExpressionsExFive = new ActionDealWithExpressionsExFive();
-		this.view.dealExpressionsExFive.setAction(actionDealWithExpressionsExFive);
+		this.view.exerciseFivePanel.dealExpressions.setAction(actionDealWithExpressionsExFive);
 		
-		ActionGiveExpressionExFive actionGiveExpressionExFive = new ActionGiveExpressionExFive();
-		this.view.giveExpressionExFive.setAction(actionGiveExpressionExFive);
+		// Adding the key listener which allows to click on the deal with it button when we press the enter button
+		// with focus on the text field		
+		this.view.exerciseFivePanel.inputExpressions.addKeyListener(new KeyAdapterInputExpressions(this.view.exerciseFivePanel));
 		
-		ActionResetExFive actionResetExFive = new ActionResetExFive();
-		this.view.resetExFive.setAction(actionResetExFive);
+		// Adding the controller for the button input formula (which gives an input expression)
+		ActionGiveExpression actionGiveExpressionExFive = new ActionGiveExpression(5, examplesTableau, view.exerciseFivePanel.inputExpressions);
+		this.view.exerciseFivePanel.giveExpression.setAction(actionGiveExpressionExFive);
 		
+		// Adding the controller for the reset button
+		ActionResetExercise actionResetExFive = new ActionResetExercise(this.view.exerciseFivePanel);
+		this.view.exerciseFivePanel.reset.setAction(actionResetExFive);
+		
+		// Adding the controller which allows the user to undo his actions
+		ActionUndoExFive actionUndoExFive = new ActionUndoExFive();
+		this.view.exerciseFivePanel.undo.setAction(actionUndoExFive);
+		this.view.exerciseFivePanel.undo.setEnabled(false);
+		
+		// Adding the controller to the progress button (which allows to show the data)
 		ActionShowProgressExFive actionShowProgressExFive = new ActionShowProgressExFive();
-		this.view.progressExFive.setAction(actionShowProgressExFive);
+		this.view.exerciseFivePanel.progress.setAction(actionShowProgressExFive);
 		
+		// Adding the controller for the go back (to the main menu) button
 		ActionGoBack actionGoBackExFive = new ActionGoBack();
-		this.view.goBackExFive.setAction(actionGoBackExFive);
+		this.view.exerciseFivePanel.goBack.setAction(actionGoBackExFive);
 		
 	}
 	
-	public class ActionExOne implements MouseListener {
+	/*
+	 * Class extending KeyAdapter which allows to execute the action of the deal with it button
+	 * when the user presses "enter" on the keyboard and that the text field has the focus
+	 */
+	class KeyAdapterInputExpressions extends KeyAdapter {
+		
+		Exercise exercisePanel;
+		
+		public KeyAdapterInputExpressions(Exercise exercisePanel) {
+			this.exercisePanel = exercisePanel;
+		}
+		
+		@Override
+	    public void keyPressed(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_ENTER){
+				this.exercisePanel.dealExpressions.doClick();
+	        }
+		}
+		
+	}
+	
+	// Main Menu
+	
+	/*
+	 * When the user clicks on the button of one exercise it removes the panel of the main menu
+	 * and replaces it with the selected exercise's panel
+	 * exercisePanel => the panel of the exercise selected by the user
+	 */
+	public class ActionExercise implements MouseListener {
 
+		Exercise exercisePanel;
+		String file;
+		ArrayList<String> examples;
+		
+		public ActionExercise(Exercise exercisePanel) {
+			this.exercisePanel = exercisePanel;
+		}
+		
+		public ActionExercise(Exercise exercisePanel, String file, ArrayList<String> examples) {
+			this.exercisePanel = exercisePanel;
+			this.file = file;
+			this.examples = examples;		
+		}
+		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			System.out.println("APPUYE");
+			view.title.setText(this.exercisePanel.title);
 			BorderLayout layout = (BorderLayout)view.main.getLayout();
 			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseOne, BorderLayout.CENTER);
-			view.inputExpressionsExOne.requestFocusInWindow();
-			if (view.dealExpressionsExOne.isEnabled()) {
-				view.resetExOne.setEnabled(false);
+			view.main.add(this.exercisePanel, BorderLayout.CENTER);
+			this.exercisePanel.inputExpressions.requestFocusInWindow();
+			if (this.exercisePanel.dealExpressions.isEnabled()) {
+				this.exercisePanel.reset.setEnabled(false);
+			}
+			if (this.file != null && this.examples.isEmpty()) {
+				readFileExamples(this.file, this.examples);
 			}
 			view.revalidate();
 			view.repaint();
+			PopupExerciseInstructions popupExerciseInstructions = new PopupExerciseInstructions(this.exercisePanel);
 		}
 
 		@Override
@@ -292,202 +333,75 @@ public class Controler {
 	
 	
 	/*
-	 * When the user clicks on the button of the first exercise it removes the panel of the main menu
-	 * and replaces it with the first exercise panel
+	 * Function which allows to read the Files with all the examples for the given exercise
+	 * file => the name of the file to read
+	 * examples => the list where the examples are stored
 	 */
-	public class ActionExerciseOne extends AbstractAction implements Observer {
-		
-		public ActionExerciseOne() {
-			this.putValue(Action.NAME, "Exercise 1");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE");
-			view.title.setText("Truth Table");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseOne, BorderLayout.CENTER);
-			view.inputExpressionsExOne.requestFocusInWindow();
-			if (view.dealExpressionsExOne.isEnabled()) {
-				view.resetExOne.setEnabled(false);
-			}
-			if (examplesExOne.isEmpty()) {
-				readFileExamples("ExamplesTruthTable.txt", examplesExOne);
-			}
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
+	public void readFileExamples(String file, ArrayList<String> examples){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(file)))) {
+            // read line by line
+            String line;
+            while ((line = br.readLine()) != null) {
+            	examples.add(line);
+            }
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
 	}
+	
+	
+	
+	// Exercises Controllers
 	
 	/*
-	 * When the user clicks on the button of the second exercise it removes the panel of the main menu
-	 * and replaces it with the second exercise panel
+	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
 	 */
-	public class ActionExerciseTwo extends AbstractAction implements Observer {
+	public class ActionDealWithExpressionsExOne extends AbstractAction implements Observer {
 		
-		public ActionExerciseTwo() {
-			this.putValue(Action.NAME, "Exercise 2");
+		public ActionDealWithExpressionsExOne() {
+			this.putValue(Action.NAME, "Deal with it");
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE");
-			view.title.setText("Logical Structure of expressions");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseTwo, BorderLayout.CENTER);
-			view.inputExpressionsExTwo.requestFocusInWindow();
-			if (view.dealExpressionsExTwo.isEnabled()) {
-				view.resetExTwo.setEnabled(false);
+		public void actionPerformed(ActionEvent event) {
+			String expression = view.exerciseOnePanel.inputExpressions.getText();
+			try {
+				TreeMaker treeMaker = new TreeMaker(expression);
+				JPanel tabView = treeMaker.syntaxAnalysis().getView();
+				BorderLayout layout = (BorderLayout)view.exerciseOnePanel.getLayout();
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
+					view.exerciseOnePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				}
+				tabView.setPreferredSize(new Dimension(1000, 1000));
+		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				view.exerciseOnePanel.add(scrollPane, BorderLayout.CENTER);
+				view.exerciseOnePanel.dealExpressions.setEnabled(false);
+				view.exerciseOnePanel.reset.setEnabled(true);
+				view.revalidate();
+				view.repaint();
 			}
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user clicks on the button of the third exercise it removes the panel of the main menu
-	 * and replaces it with the third exercise panel
-	 */
-	public class ActionExerciseThree extends AbstractAction implements Observer {
-		
-		public ActionExerciseThree() {
-			this.putValue(Action.NAME, "Exercise 3");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE");
-			view.title.setText("Exploring different ways to construct a Tableau");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseThree, BorderLayout.CENTER);
-			view.inputExpressionsExThree.requestFocusInWindow();
-			if (view.dealExpressionsExThree.isEnabled()) {
-				view.resetExThree.setEnabled(false);
-				view.nextStep.setEnabled(false);
+			catch (StringIndexOutOfBoundsException npe){
+				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
 			}
-			if (examplesExThree.isEmpty()) {
-				readFileExamples("ExamplesTableau.txt", examplesExThree);
+			catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
 			}
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user clicks on the button of the fourth exercise it removes the panel of the main menu
-	 * and replaces it with the fourth exercise panel
-	 */
-	public class ActionExerciseFour extends AbstractAction implements Observer {
-		
-		public ActionExerciseFour() {
-			this.putValue(Action.NAME, "Exercise 4");
 		}
 		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE");
-			view.title.setText("Constructing a Full Tableau");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseFour, BorderLayout.CENTER);
-			view.inputExpressionsExFour.requestFocusInWindow();
-			if (view.dealExpressionsExFour.isEnabled()) {
-				view.resetExFour.setEnabled(false);
-				view.undo.setEnabled(false);
-			}
-			if (examplesExFour.isEmpty()) {
-				readFileExamples("ExamplesTableau.txt", examplesExFour);
-			}
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	public class ActionExerciseFive extends AbstractAction implements Observer {
-		
-		public ActionExerciseFive() {
-			this.putValue(Action.NAME, "Exercise 5");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE");
-			view.title.setText("Computing a single row in the Truth Table ");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.panelExerciseFive, BorderLayout.CENTER);
-			view.inputExpressionsExFive.requestFocusInWindow();
-			if (view.dealExpressionsExFive.isEnabled()) {
-				view.resetExFive.setEnabled(false);
-			}
-			if (examplesExFive.isEmpty()) {
-				readFileExamples("ExamplesTruthTable.txt", examplesExFive);
-			}
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user clicks on the "Go back" button it makes him go back to the main menu
-	 */
-	public class ActionGoBack extends AbstractAction implements Observer {
-		
-		public ActionGoBack() {
-			this.putValue(Action.NAME, "Go Back !");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("APPUYE BACK");
-			view.title.setText("Exercises about Tableau Logic");
-			BorderLayout layout = (BorderLayout)view.main.getLayout();
-			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.main.add(view.exercisesPanel, BorderLayout.CENTER);
-			view.revalidate();
-			view.repaint();
-		}
-
 		@Override
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");
 		}	
 	}
 	
+	
 	/*
-	 * When the user clicks on the "Deal with it button" it gives the empty truth table of the given input
+	 * When the user clicks on the "Deal with it" button it gives an empty line of the truth table
+	 * of the given input expression
 	 */
-	public class ActionDealWithExpressions extends AbstractAction implements Observer {
+	public class ActionDealWithExpressionsExTwo extends AbstractAction implements Observer {
 		
-		public ActionDealWithExpressions() {
+		public ActionDealWithExpressionsExTwo() {
 			this.putValue(Action.NAME, "Deal with it");
 		}
 		
@@ -495,15 +409,14 @@ public class Controler {
 		public void actionPerformed(ActionEvent event) {
 			try {
 				try{
-					String input = view.inputExpressionsExOne.getText();
+					String input = view.exerciseTwoPanel.inputExpressions.getText();
 					TruthTable truthTable = new TruthTable(input);
-					TruthTableView truthTableView = new TruthTableView(truthTable);
-					JScrollPane scrollPane = new JScrollPane(truthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-					truthTableView.check.setAction(new CheckTruthTable(truthTable, truthTableView, view, input));
-					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
-					view.dealExpressionsExOne.setEnabled(false);
-					view.giveExpressionExOne.setEnabled(false);
-					view.resetExOne.setEnabled(true);
+					OneTruthTableLineView oneTruthTableLineView = new OneTruthTableLineView(truthTable);
+					JScrollPane scrollPane = new JScrollPane(oneTruthTableLineView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					oneTruthTableLineView.check.addMouseListener(new CheckAnswersLineTruthTable(truthTable, oneTruthTableLineView, view, input));
+					view.exerciseTwoPanel.add(scrollPane, BorderLayout.CENTER);
+					view.exerciseTwoPanel.dealExpressions.setEnabled(false);
+					view.exerciseTwoPanel.reset.setEnabled(true);
 					view.revalidate();
 					view.repaint();
 				}
@@ -525,10 +438,157 @@ public class Controler {
 		}	
 	}
 	
+	
+	/*
+	 * Listener for the check button of the truth table line
+	 * It allows to check the user's answers and tell whether he's all right or not
+	 */
+	public class CheckAnswersLineTruthTable implements MouseListener{
+
+		TruthTable truthTable;
+		OneTruthTableLineView oneTruthTableLineView;
+		View view;
+		String input;
+		
+		public CheckAnswersLineTruthTable(TruthTable truthTable, OneTruthTableLineView oneTruthTableLineView, View view, String input) {
+			this.truthTable = truthTable;
+			this.oneTruthTableLineView = oneTruthTableLineView;
+			this.view = view;
+			this.input = input;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {		
+			String[] answers = new String[this.oneTruthTableLineView.answers.length];
+			for (int i = 0; i < this.oneTruthTableLineView.answers.length; i++) {
+				answers[i] = this.oneTruthTableLineView.answers[i].getText();
+			}
+			try {
+				DataHandlerExTwo dataHandlerExTwo = new DataHandlerExTwo(beginingOfPath + "DataFileExTwo.txt");
+				boolean correct = false;
+				if (this.truthTable.checkAnswersForLine(answers)) {
+					JOptionPane.showMessageDialog(null, "Correct answer !");
+					int indexOfExamples = readIndex(2);
+					if (!examplesTruthTable.isEmpty() && indexOfExamples < examplesTruthTable.size() && examplesTruthTable.get(indexOfExamples).equals(this.input)){
+						updateIndex(2);
+					}
+					correct = true;
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Wrong anwer !");
+				}
+				
+				dataHandlerExTwo.write(this.input, this.truthTable.getLiterals().keySet(), this.truthTable.getNodes(), answers, correct);
+			
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	/*
+	 * Allows to display the progress of the user for the second exercise (in a popup)
+	 */
+	public class ActionShowProgressExTwo extends AbstractAction implements Observer {
+		
+		public ActionShowProgressExTwo() {
+			this.putValue(Action.NAME, "Your Progress");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				DataHandlerExTwo dataHandlerExTwo = new DataHandlerExTwo(beginingOfPath + "DataFileExTwo.txt");
+				PopupViewDataExTwo popup = new PopupViewDataExTwo(dataHandlerExTwo.getData(), dataHandlerExTwo.getMaxNumberOfColumns());
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, e1.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	/*
+	 * When the user clicks on the "Deal with it button" it gives the empty truth table of the given input
+	 */
+	public class ActionDealWithExpressionsExThree extends AbstractAction implements Observer {
+		
+		public ActionDealWithExpressionsExThree() {
+			this.putValue(Action.NAME, "Deal with it");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				try{
+					String input = view.exerciseThreePanel.inputExpressions.getText();
+					TruthTable truthTable = new TruthTable(input);
+					TruthTableView truthTableView = new TruthTableView(truthTable);
+					JScrollPane scrollPane = new JScrollPane(truthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					truthTableView.check.setAction(new CheckTruthTable(truthTable, truthTableView, view, input));
+					view.exerciseThreePanel.add(scrollPane, BorderLayout.CENTER);
+					view.exerciseThreePanel.dealExpressions.setEnabled(false);
+					view.exerciseThreePanel.reset.setEnabled(true);
+					view.revalidate();
+					view.repaint();
+				}
+				catch(Exception e){
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
+			}
+			catch (StringIndexOutOfBoundsException npe){
+				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
+			}
+			catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
+			}
+		}
+
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}	
+	}
+	
+	
 	/*
 	 * Controller which allows to check the user's answers for the truth table
 	 * It checks all the boolean values and tells the user if there's a mistake
 	 * If everything is correct the view is updated with the truth table (as fixed)
+	 * truthTable => the Truth Table object we use to handle this exercise
+	 * truthTableView => the view in which the user wrote his answers
+	 * view => the general view of the program
+	 * input => the expression(s) given by the user at the begining of the exercise
 	 */
 	public class CheckTruthTable extends AbstractAction implements Observer{
 
@@ -549,8 +609,8 @@ public class Controler {
 		public void actionPerformed(ActionEvent arg0) {
 			try {
 				//We setup the object which will read/write our data
-				DataHandlerExOne dataHandlerExOne = new DataHandlerExOne(beginingOfPath + "DataFileExOne.txt");
-				dataHandlerExOne.write(this.input, this.truthTable.getNodes());
+				DataHandlerExThree dataHandlerExThree = new DataHandlerExThree(beginingOfPath + "DataFileExThree.txt");
+				dataHandlerExThree.write(this.input, this.truthTable.getNodes());
 				//We collect the user answers
 				int numberOfColumns = this.truthTableView.answers[0].length;
 				int numberOfRows = this.truthTableView.answers.length;
@@ -572,25 +632,25 @@ public class Controler {
 						for (Integer index: mistakesIndex) {
 							this.truthTableView.answers[index][i].setForeground(Color.RED);
 						}
-						dataHandlerExOne.update(this.input, i, mistakesIndex.size());
+						dataHandlerExThree.update(this.input, i, mistakesIndex.size());
 						// If there's a mistake we stop the checking and tell the user he's wrong
 						throw new Exception("You've made a mistake !");
 					}
 				}
 				// If no mistake encountered we display the Truth Table as fixed
-				BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
-				this.view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				BorderLayout layout = (BorderLayout)view.exerciseThreePanel.getLayout();
+				this.view.exerciseThreePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				CorrectTruthTableView correctTruthTableView;
 				try {
 					correctTruthTableView = new CorrectTruthTableView(this.truthTable);
 					JScrollPane scrollPane = new JScrollPane(correctTruthTableView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-					view.panelExerciseOne.add(scrollPane, BorderLayout.CENTER);
+					view.exerciseThreePanel.add(scrollPane, BorderLayout.CENTER);
 					// If the user succeeded in finding the right answer for the current level of formula
 					// (from the file of given formulas) we increase the level of the user by One
-					int indexOfExamples = readIndex(1);
-					if (!examplesExOne.isEmpty() && indexOfExamples < examplesExOne.size() && examplesExOne.get(indexOfExamples).equals(input)) {
+					int indexOfExamples = readIndex(3);
+					if (!examplesTruthTable.isEmpty() && indexOfExamples < examplesTruthTable.size() && examplesTruthTable.get(indexOfExamples).equals(input)) {
 						indexOfExamples++;
-						updateIndex(1);
+						updateIndex(3);
 					}
 					view.revalidate();
 					view.repaint();
@@ -610,63 +670,22 @@ public class Controler {
 		
 	}
 	
-	/*
-	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
-	 */
-	public class ActionGiveExpressionExOne extends AbstractAction implements Observer{
-		
-		public ActionGiveExpressionExOne() {
-			this.putValue(Action.NAME, "Input Formula");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			try {
-				view.inputExpressionsExOne.setText(examplesExOne.get(readIndex(1)));
-			} catch (Exception e2) {
-				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
-			}
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			
-		}
-		
-	}
 	
 	/*
-	 * Function which allows to read the Files with all the examples for the given exercise
-	 * file => the name of the file to read
-	 * examples => the list where the examples are stored
+	 * Allows to display the progress of the user for the third exercise (in a popup frame)
 	 */
-	public void readFileExamples(String file, ArrayList<String> examples){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(file)))) {
-            // read line by line
-            String line;
-            while ((line = br.readLine()) != null) {
-            	examples.add(line);
-            }
-        } catch (IOException e) {
-            System.err.format("IOException: %s%n", e);
-        }
-	}
-	
-	/*
-	 * Allows to display the progress of the user for the first exercise (in a popup frame)
-	 */
-	public class ActionShowProgressExOne extends AbstractAction implements Observer {
+	public class ActionShowProgressExThree extends AbstractAction implements Observer {
 		
-		public ActionShowProgressExOne() {
+		public ActionShowProgressExThree() {
 			this.putValue(Action.NAME, "Your Progress");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				DataHandlerExOne dataHandlerExOne = new DataHandlerExOne(beginingOfPath + "DataFileExOne.txt");
-				PopupViewDataExOne popup = new PopupViewDataExOne(dataHandlerExOne.getMistakes(),
-						dataHandlerExOne.getExamplesOneShot(), dataHandlerExOne.getMaxNumberOfColumns());
+				DataHandlerExThree dataHandlerExThree = new DataHandlerExThree(beginingOfPath + "DataFileExThree.txt");
+				PopupViewDataExThree popup = new PopupViewDataExThree(dataHandlerExThree.getMistakes(),
+						dataHandlerExThree.getExamplesOneShot(), dataHandlerExThree.getMaxNumberOfColumns());
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
@@ -682,145 +701,8 @@ public class Controler {
 	
 	
 	/*
-	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
-	 */
-	public class ActionDealWithExpressionsExTwo extends AbstractAction implements Observer {
-		
-		public ActionDealWithExpressionsExTwo() {
-			this.putValue(Action.NAME, "Deal with it");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			String expression = view.inputExpressionsExTwo.getText();
-			try {
-				TreeMaker treeMaker = new TreeMaker(expression);
-				JPanel tabView = treeMaker.syntaxAnalysis().getView();
-				BorderLayout layout = (BorderLayout)view.panelExerciseTwo.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
-					view.panelExerciseTwo.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-				}
-				tabView.setPreferredSize(new Dimension(1000, 1000));
-		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				view.panelExerciseTwo.add(scrollPane, BorderLayout.CENTER);
-				view.dealExpressionsExTwo.setEnabled(false);
-				view.resetExTwo.setEnabled(true);
-				view.revalidate();
-				view.repaint();
-			}
-			catch (StringIndexOutOfBoundsException npe){
-				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
-			}
-			catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}	
-	}
-	
-	/*
 	 * When the user clicks on the "Deal with it button" it realizes the resolution of the given expression
-	 */
-	public class ActionDealWithExpressionsExThree extends AbstractAction implements Observer {
-		
-		public ActionDealWithExpressionsExThree() {
-			this.putValue(Action.NAME, "Deal with it");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			String expressions = view.inputExpressionsExThree.getText();
-			try {
-				tableau = new Tableau();
-				tableau.setRoot(new Set(expressions));
-				if (view.modeSelector.getSelection().equals(view.modeOneStep.getModel())) {
-					tableau.setDevMode(0);
-					tableau.applyRules();
-				}
-				else{
-					if (view.modeSelector.getSelection().equals(view.modeDepthFirst.getModel())) {
-						tableau.setDevMode(1);
-					}
-					else if (view.modeSelector.getSelection().equals(view.modeBreadthFirst.getModel())) {
-						tableau.setDevMode(2);
-					}
-					try {
-						tableau.applyRule();
-						view.nextStep.setEnabled(true);
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(null, e.getMessage());
-					}
-				}
-				TableauView<String> tabView = tableau.getView();				
-				BorderLayout layout = (BorderLayout)view.panelExerciseThree.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
-					view.panelExerciseThree.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-				}
-				JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				view.panelExerciseThree.add(scrollPane, BorderLayout.CENTER);
-				view.dealExpressionsExThree.setEnabled(false);
-				view.resetExThree.setEnabled(true);
-				view.revalidate();
-				view.repaint();
-				if (!tableau.remainingRules()) {
-					view.nextStep.setEnabled(false);
-					if (!tableau.validity()) {
-						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
-					}
-					else{
-						JOptionPane.showMessageDialog(null, "The Tableau is correct !");
-					}
-					int indexOfExamples = readIndex(3);
-					if (!examplesExThree.isEmpty() && indexOfExamples < examplesExThree.size() && examplesExThree.get(indexOfExamples).equals(expressions)){
-						updateIndex(3);
-					}
-				}
-			}
-			catch (StringIndexOutOfBoundsException npe){
-				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
-			}
-			catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}	
-	}
-	
-	/*
-	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
-	 */
-	public class ActionGiveExpressionExThree extends AbstractAction implements Observer{
-		
-		public ActionGiveExpressionExThree() {
-			this.putValue(Action.NAME, "Input Formula");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			try {
-				view.inputExpressionsExThree.setText(examplesExThree.get(readIndex(3)));
-			} catch (Exception e2) {
-				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
-			}
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			
-		}
-		
-	}
-	
-	/*
-	 * When the user click on the "Deal with it button" it realizes the resolution of the given expression
+	 * with the method selected
 	 */
 	public class ActionDealWithExpressionsExFour extends AbstractAction implements Observer {
 		
@@ -830,7 +712,81 @@ public class Controler {
 		
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			String expressions = view.inputExpressionsExFour.getText();
+			String expressions = view.exerciseFourPanel.inputExpressions.getText();
+			try {
+				tableau = new Tableau();
+				tableau.setRoot(new Set(expressions));
+				if (view.exerciseFourPanel.modeSelector.getSelection().equals(view.exerciseFourPanel.modeOneStep.getModel())) {
+					tableau.setDevMode(0);
+					tableau.applyRules();
+				}
+				else{
+					if (view.exerciseFourPanel.modeSelector.getSelection().equals(view.exerciseFourPanel.modeDepthFirst.getModel())) {
+						tableau.setDevMode(1);
+					}
+					else if (view.exerciseFourPanel.modeSelector.getSelection().equals(view.exerciseFourPanel.modeBreadthFirst.getModel())) {
+						tableau.setDevMode(2);
+					}
+					try {
+						tableau.applyRule();
+						view.exerciseFourPanel.nextStep.setEnabled(true);
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, e.getMessage());
+					}
+				}
+				TableauView<String> tabView = tableau.getView();				
+				BorderLayout layout = (BorderLayout)view.exerciseFourPanel.getLayout();
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
+					view.exerciseFourPanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				}
+				JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				view.exerciseFourPanel.add(scrollPane, BorderLayout.CENTER);
+				view.exerciseFourPanel.dealExpressions.setEnabled(false);
+				view.exerciseFourPanel.reset.setEnabled(true);
+				view.revalidate();
+				view.repaint();
+				if (!tableau.remainingRules()) {
+					view.exerciseFourPanel.nextStep.setEnabled(false);
+					if (!tableau.validity()) {
+						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "The Tableau is completed !");
+					}
+					int indexOfExamples = readIndex(4);
+					if (!examplesTableau.isEmpty() && indexOfExamples < examplesTableau.size() && examplesTableau.get(indexOfExamples).equals(expressions)){
+						updateIndex(4);
+					}
+				}
+			}
+			catch (StringIndexOutOfBoundsException npe){
+				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
+			}
+			catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage());
+			}
+		}
+		
+		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}	
+	}	
+	
+	
+	/*
+	 * When the user click on the "Deal with it button" it realizes the resolution of the first formula
+	 * of the expression(s) given by the user and let him do the rest
+	 */
+	public class ActionDealWithExpressionsExFive extends AbstractAction implements Observer {
+		
+		public ActionDealWithExpressionsExFive() {
+			this.putValue(Action.NAME, "Deal with it");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			String expressions = view.exerciseFivePanel.inputExpressions.getText();
 			try {
 				tableau = new Tableau();
 				tableau.setRoot(new Set(expressions));
@@ -838,28 +794,28 @@ public class Controler {
 				// If the Tableau had only one rule to apply in the examples given by the program we directly 
 				// update the index for this exercise
 				if (tableau.accessibleSets.isEmpty()) {
-					int indexOfExamples = readIndex(4);
-					if (!examplesExFour.isEmpty() && indexOfExamples < examplesExFour.size() && examplesExFour.get(indexOfExamples).equals(expressions)){
-						updateIndex(4);
+					int indexOfExamples = readIndex(5);
+					if (!examplesTableau.isEmpty() && indexOfExamples < examplesTableau.size() && examplesTableau.get(indexOfExamples).equals(expressions)){
+						updateIndex(5);
 					}
 				}
 				JPanel tabView = tableau.getView();
 				tabView.addMouseListener(new SetSelected());
 				
-				BorderLayout layout = (BorderLayout)view.panelExerciseFour.getLayout();
+				BorderLayout layout = (BorderLayout)view.exerciseFivePanel.getLayout();
 				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
-					view.panelExerciseFour.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+					view.exerciseFivePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
 		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				view.panelExerciseFour.add(scrollPane, BorderLayout.CENTER);
-				view.dealExpressionsExFour.setEnabled(false);
-				view.resetExFour.setEnabled(true);
+				view.exerciseFivePanel.add(scrollPane, BorderLayout.CENTER);
+				view.exerciseFivePanel.dealExpressions.setEnabled(false);
+				view.exerciseFivePanel.reset.setEnabled(true);
 				view.revalidate();
 				view.repaint();
 				
 				// We link this to the data handler
-				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
-				dataHandlerExFour.write(expressions, 2);
+				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
+				dataHandlerExFive.write(expressions, 2);
 			}
 			catch (StringIndexOutOfBoundsException npe){
 				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
@@ -873,7 +829,8 @@ public class Controler {
 		public void update(Observable arg0, Object arg1) {
 			System.out.println("UPDATE");
 		}	
-	}
+	}	
+	
 	
 	/*
 	 * Listener which allows to select a Set in the tree shown
@@ -933,30 +890,6 @@ public class Controler {
 		}
 	}
 	
-	/*
-	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
-	 */
-	public class ActionGiveExpressionExFour extends AbstractAction implements Observer{
-		
-		public ActionGiveExpressionExFour() {
-			this.putValue(Action.NAME, "Input Formula");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			try {
-				view.inputExpressionsExFour.setText(examplesExFour.get(readIndex(4)));
-			} catch (Exception e2) {
-				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
-			}
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			
-		}
-		
-	}
 	
 	/*
 	 * Listener which allows to select one specific operation to do in a selected Set
@@ -973,7 +906,6 @@ public class Controler {
 			this.index = index;
 			this.coords = coords;
 		}
-
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -993,34 +925,34 @@ public class Controler {
 			view.repaint();
 		}
 
-
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			
 		}
-
 
 		@Override
 		public void mouseExited(MouseEvent e) {
 			
 		}
 
-
 		@Override
 		public void mousePressed(MouseEvent e) {
 			
 		}
 
-
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			
 		}
-		
 	}
+	
 	
 	/*
 	 * Listener which allows the user to anticipate the result of the operation previously selected
+	 * popup => the view in which the user wrote his answers
+	 * index => the index of the operator selected by the user
+	 * coords => the coordinates of the selected Set (node of the Tableau)
+	 * operator => the String representation of the operator selected by the user
 	 */
 	public class CheckAnticipationOperatorResult implements MouseListener{
 
@@ -1039,7 +971,7 @@ public class Controler {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
-				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
+				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
 				Set simulatedSet = tableau.simulateRuleForThisSet(coords, index);
 				// The substring method is used to get only the expression (the root) and not what it added by
 				// the toString() method of the Set class
@@ -1048,7 +980,7 @@ public class Controler {
 				// We check the answer of the user
 				if (simulatedSet.getSecond() == null) {
 					if (!this.popup.inputTwo.getText().equals("")) {
-						dataHandlerExFour.update(expression, 1, 1);
+						dataHandlerExFive.update(expression, 1, 1);
 						throw new Exception("Too many children anticipated !");
 					}
 					else{
@@ -1062,20 +994,20 @@ public class Controler {
 				// If the user anticipated well we apply the rule onto the "real" Tableau
 				if (checked) {
 					stepsStack.push(tableau.clone());
-					view.undo.setEnabled(true);
+					view.exerciseFivePanel.undo.setEnabled(true);
 					tableau.applyRuleForThisSet(this.coords, this.index);
 					tableau.accessibleSets.remove(this.coords);
 					if (tableau.accessibleSets.isEmpty()) {
-						updateIndex(4);
+						updateIndex(5);
 					}
 					this.popup.dispose();
 				}
 				else {
-					dataHandlerExFour.update(expression, 1, 1);
+					dataHandlerExFive.update(expression, 1, 1);
 					throw new Exception("Wrong Anticipation !");
 				}
 				if (wrongRuleApplied(this.operator)) {
-					dataHandlerExFour.update(expression, 2, 1);
+					dataHandlerExFive.update(expression, 2, 1);
 				}
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
@@ -1134,20 +1066,21 @@ public class Controler {
 		
 	}
 	
+	
 	/*
-	 * Allows to display the progress of the user for the fourth exercise (in a popup frame)
+	 * Allows to display the progress of the user for the fifth exercise (in a popup)
 	 */
-	public class ActionShowProgressExFour extends AbstractAction implements Observer {
+	public class ActionShowProgressExFive extends AbstractAction implements Observer {
 		
-		public ActionShowProgressExFour() {
+		public ActionShowProgressExFive() {
 			this.putValue(Action.NAME, "Your Progress");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				DataHandlerExFour dataHandlerExFour = new DataHandlerExFour(beginingOfPath + "DataFileExFour.txt");
-				PopupViewDataExFour popup = new PopupViewDataExFour(dataHandlerExFour.getData());
+				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
+				PopupViewDataExFive popup = new PopupViewDataExFive(dataHandlerExFive.getData());
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null, e1.getMessage());
 			}
@@ -1161,62 +1094,31 @@ public class Controler {
 		
 	}
 	
-	/*
-	 * When the user clicks on the "Deal with it" button it gives an empty line of the truth table
-	 * of the given input expression
-	 */
-	public class ActionDealWithExpressionsExFive extends AbstractAction implements Observer {
-		
-		public ActionDealWithExpressionsExFive() {
-			this.putValue(Action.NAME, "Deal with it");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-				try{
-					String input = view.inputExpressionsExFive.getText();
-					TruthTable truthTable = new TruthTable(input);
-					OneTruthTableLineView oneTruthTableLineView = new OneTruthTableLineView(truthTable);
-					JScrollPane scrollPane = new JScrollPane(oneTruthTableLineView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-					oneTruthTableLineView.check.addMouseListener(new CheckAnswersLineTruthTable(truthTable, oneTruthTableLineView, view, input));
-					view.panelExerciseFive.add(scrollPane, BorderLayout.CENTER);
-					view.dealExpressionsExFive.setEnabled(false);
-					view.resetExFive.setEnabled(true);
-					view.revalidate();
-					view.repaint();
-				}
-				catch(Exception e){
-					JOptionPane.showMessageDialog(null, e.getMessage());
-				}
-			}
-			catch (StringIndexOutOfBoundsException npe){
-				JOptionPane.showMessageDialog(null, "Invalid syntax : empty expression !");
-			}
-			catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}	
-	}
 	
 	/*
-	 * Allows to give an expression to the user (in the textfield) when he clicks on the right button
+	 * Allows to give an expression from the database to the user (in the text field)
+	 * when he clicks on the "Input Formula" button
+	 * exercise => the number of the exercise selected by the user
+	 * examples => the array of examples corresponding to the current exercise
+	 * textField => the text field in which the user will get the input he wants
 	 */
-	public class ActionGiveExpressionExFive extends AbstractAction implements Observer{
+	public class ActionGiveExpression extends AbstractAction implements Observer{
 		
-		public ActionGiveExpressionExFive() {
+		int exercise;
+		ArrayList<String> examples;
+		JTextField textField;
+		
+		public ActionGiveExpression(int exercise, ArrayList<String> examples, JTextField textField) {
 			this.putValue(Action.NAME, "Input Formula");
+			this.exercise = exercise;
+			this.examples = examples;
+			this.textField = textField;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				view.inputExpressionsExFive.setText(examplesExFive.get(readIndex(5)));
+				this.textField.setText(this.examples.get(readIndex(this.exercise)));
 			} catch (Exception e2) {
 				JOptionPane.showMessageDialog(null, "You've been through all the examples now it's your time to play !");
 			}
@@ -1229,91 +1131,66 @@ public class Controler {
 		
 	}
 	
-	/*
-	 * Listener for the check button of the truth table line
-	 * It allows to check the user's answers and tells whether he's all right or not
-	 */
-	public class CheckAnswersLineTruthTable implements MouseListener{
-
-		TruthTable truthTable;
-		OneTruthTableLineView oneTruthTableLineView;
-		View view;
-		String input;
-		
-		public CheckAnswersLineTruthTable(TruthTable truthTable, OneTruthTableLineView oneTruthTableLineView, View view, String input) {
-			this.truthTable = truthTable;
-			this.oneTruthTableLineView = oneTruthTableLineView;
-			this.view = view;
-			this.input = input;
-		}
-		
-		@Override
-		public void mouseClicked(MouseEvent e) {		
-			String[] answers = new String[this.oneTruthTableLineView.answers.length];
-			for (int i = 0; i < this.oneTruthTableLineView.answers.length; i++) {
-				answers[i] = this.oneTruthTableLineView.answers[i].getText();
-			}
-			try {
-				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
-				if (this.truthTable.checkAnswersForLine(answers)) {
-					JOptionPane.showMessageDialog(null, "Correct answer !");
-					dataHandlerExFive.writeCorrectAnswer(this.input, this.truthTable.getLiterals().keySet(), this.truthTable.getNodes(), answers);
-					int indexOfExamples = readIndex(5);
-					if (!examplesExFive.isEmpty() && indexOfExamples < examplesExFive.size() && examplesExFive.get(indexOfExamples).equals(this.input)){
-						updateIndex(5);
-					}
-				}
-				else{
-					JOptionPane.showMessageDialog(null, "Your answer is false !");
-					dataHandlerExFive.write(this.input, this.truthTable.getLiterals().keySet(), this.truthTable.getNodes(), answers);
-				}
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
-			}
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
 	
 	/*
-	 * Allows to display the progress of the user for the first exercise (in a popup frame)
+	 * When the user clicks on the "Go back" button it makes him go back to the main menu
 	 */
-	public class ActionShowProgressExFive extends AbstractAction implements Observer {
+	public class ActionGoBack extends AbstractAction implements Observer {
 		
-		public ActionShowProgressExFive() {
-			this.putValue(Action.NAME, "Your Progress");
+		public ActionGoBack() {
+			this.putValue(Action.NAME, "Go Back !");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("APPUYE BACK");
+			view.title.setText("Reasoning based on Booleans");
+			BorderLayout layout = (BorderLayout)view.main.getLayout();
+			view.main.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			view.main.add(view.listOfExercises, BorderLayout.CENTER);
+			view.revalidate();
+			view.repaint();
 		}
 
 		@Override
+		public void update(Observable arg0, Object arg1) {
+			System.out.println("UPDATE");
+		}	
+	}
+	
+	
+	/*
+	 * Action which allows the user to reset the current exercise settings so he can
+	 * practice on another example
+	 * exercisePanel => the current exercise (the one selected by the user)
+	 */
+	public class ActionResetExercise extends AbstractAction implements Observer {
+
+		Exercise exercisePanel;
+		
+		public ActionResetExercise(Exercise exercisePanel) {
+			this.putValue(Action.NAME, "Reset");
+			this.exercisePanel = exercisePanel;
+		}
+		
+		@Override
 		public void actionPerformed(ActionEvent e) {
+			System.out.println("RESET");
+			BorderLayout layout = (BorderLayout)this.exercisePanel.getLayout();
+			this.exercisePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			this.exercisePanel.inputExpressions.setText("");
+			this.exercisePanel.dealExpressions.setEnabled(true);
+			this.exercisePanel.reset.setEnabled(false);
+			this.exercisePanel.inputExpressions.requestFocusInWindow();
+			if (this.exercisePanel instanceof ExerciseFive) {
+				((ExerciseFive) this.exercisePanel).undo.setEnabled(false);
+			}
+			view.revalidate();
+			view.repaint();
 			try {
-				DataHandlerExFive dataHandlerExFive = new DataHandlerExFive(beginingOfPath + "DataFileExFive.txt");
-				PopupViewDataExFive popup = new PopupViewDataExFive(dataHandlerExFive.getData(), dataHandlerExFive.getMaxNumberOfColumns());
-			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(null, e1.getMessage());
+				tableau.setRoot(null);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, ex.getMessage());
 			}
 		}
 
@@ -1324,213 +1201,15 @@ public class Controler {
 		}
 		
 	}
-	
+
 	
 	/*
-	 * When the user click on the button "Reset" it resets everything related to the current exercise
+	 * Action which allows the user to develop another Set of the current Tableau
+	 * considering the resolution method selected (DepthFirst -- BreadthFirst)
 	 */
-	public class ActionReset extends AbstractAction implements Observer {
+	public class ActionNextStepExFour extends AbstractAction implements Observer {
 		
-		public ActionReset() {
-			this.putValue(Action.NAME, "Reset");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("RESET");
-			BorderLayout layout = (BorderLayout)view.panelExerciseOne.getLayout();
-			view.panelExerciseOne.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.inputExpressionsExOne.setText("");
-			view.dealExpressionsExOne.setEnabled(true);
-			view.giveExpressionExOne.setEnabled(true);
-			view.resetExOne.setEnabled(false);
-			view.inputExpressionsExOne.requestFocusInWindow();
-			view.revalidate();
-			view.repaint();
-			try {
-				tableau.setRoot(null);
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user click on the button "Reset" it resets everything related to the current exercise
-	 */
-	public class ActionResetExTwo extends AbstractAction implements Observer {
-		
-		public ActionResetExTwo() {
-			this.putValue(Action.NAME, "Reset");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("RESET");
-			BorderLayout layout = (BorderLayout)view.panelExerciseTwo.getLayout();
-			view.panelExerciseTwo.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.inputExpressionsExTwo.setText("");
-			view.dealExpressionsExTwo.setEnabled(true);
-			view.resetExTwo.setEnabled(false);
-			view.inputExpressionsExTwo.requestFocusInWindow();
-			view.revalidate();
-			view.repaint();
-			try {
-				tableau.setRoot(null);
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user click on the button "Reset" it resets everything related to the current exercise
-	 */
-	public class ActionResetExThree extends AbstractAction implements Observer {
-		
-		public ActionResetExThree() {
-			this.putValue(Action.NAME, "Reset");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("RESET");
-			BorderLayout layout = (BorderLayout)view.panelExerciseThree.getLayout();
-			view.panelExerciseThree.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.inputExpressionsExThree.setText("");
-			view.dealExpressionsExThree.setEnabled(true);
-			view.resetExThree.setEnabled(false);
-			view.nextStep.setEnabled(false);
-			view.inputExpressionsExThree.requestFocusInWindow();
-			view.revalidate();
-			view.repaint();
-			try {
-				tableau.setRoot(null);
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * When the user click on the button "Reset" it resets everything related to the current exercise
-	 */
-	public class ActionResetExFour extends AbstractAction implements Observer {
-		
-		public ActionResetExFour() {
-			this.putValue(Action.NAME, "Reset");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("RESET");
-			BorderLayout layout = (BorderLayout)view.panelExerciseFour.getLayout();
-			view.panelExerciseFour.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.inputExpressionsExFour.setText("");
-			view.dealExpressionsExFour.setEnabled(true);
-			view.resetExFour.setEnabled(false);
-			view.undo.setEnabled(false);
-			stepsStack.removeAllElements();
-			view.inputExpressionsExFour.requestFocusInWindow();
-			view.revalidate();
-			view.repaint();
-			try {
-				tableau.setRoot(null);
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	public class ActionResetExFive extends AbstractAction implements Observer {
-		
-		public ActionResetExFive() {
-			this.putValue(Action.NAME, "Reset");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("RESET");
-			BorderLayout layout = (BorderLayout)view.panelExerciseFive.getLayout();
-			view.panelExerciseFive.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			view.inputExpressionsExFive.setText("");
-			view.dealExpressionsExFive.setEnabled(true);
-			view.resetExFive.setEnabled(false);
-			view.inputExpressionsExFive.requestFocusInWindow();
-			view.revalidate();
-			view.repaint();
-			try {
-				tableau.setRoot(null);
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage());
-			}
-		}
-
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			System.out.println("UPDATE");
-		}
-	}
-	
-	/*
-	 * Action which allows the user to undo his last action (for the exercise four)
-	 */
-	public class ActionUndoExFour extends AbstractAction implements Observer{
-		
-		public ActionUndoExFour(){
-			this.putValue(Action.NAME, "Undo");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			tableau = stepsStack.pop();
-			if (stepsStack.empty()) {
-				view.undo.setEnabled(false);
-			}
-			BorderLayout layout = (BorderLayout)view.panelExerciseFour.getLayout();
-			view.panelExerciseFour.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-			JPanel tabView = tableau.getView();
-			tabView.addMouseListener(new SetSelected());
-			tabView.setPreferredSize(new Dimension(1400, 1000));
-	        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			view.panelExerciseFour.add(scrollPane, BorderLayout.CENTER);
-			view.revalidate();
-			view.repaint();
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			System.out.println("UPDATE");
-		}
-		
-	}
-	
-	/*
-	 * Action which allows the user to develop another Set of the current Tableau considering the resolution mode selected
-	 */
-	public class ActionNextStep extends AbstractAction implements Observer {
-		
-		public ActionNextStep() {
+		public ActionNextStepExFour() {
 			this.putValue(Action.NAME, "Next");
 		}
 		
@@ -1543,8 +1222,7 @@ public class Controler {
 				view.revalidate();
 				view.repaint();
 				if (!tableau.remainingRules()) {
-					view.nextStep.setEnabled(false);
-					view.nextStep.setEnabled(false);
+					view.exerciseFourPanel.nextStep.setEnabled(false);
 					if (tableau.getRoot().contradiction()) {
 						JOptionPane.showMessageDialog(null, "There is at leat one contradiction in the Tableau !");
 					}
@@ -1563,8 +1241,45 @@ public class Controler {
 		}
 	}
 	
+	
 	/*
-	 * Function which allows to read the index of the next expression to give to the user (Exercise 1)
+	 * Action which allows the user to undo his last actions, one by one,
+	 * for the fourth exercise
+	 */
+	public class ActionUndoExFive extends AbstractAction implements Observer{
+		
+		public ActionUndoExFive(){
+			this.putValue(Action.NAME, "Undo");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			tableau = stepsStack.pop();
+			if (stepsStack.empty()) {
+				view.exerciseFivePanel.undo.setEnabled(false);
+			}
+			BorderLayout layout = (BorderLayout)view.exerciseFivePanel.getLayout();
+			view.exerciseFivePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			JPanel tabView = tableau.getView();
+			tabView.addMouseListener(new SetSelected());
+			tabView.setPreferredSize(new Dimension(1400, 1000));
+	        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			view.exerciseFivePanel.add(scrollPane, BorderLayout.CENTER);
+			view.revalidate();
+			view.repaint();
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			System.out.println("UPDATE");
+		}
+		
+	}
+
+	
+	/*
+	 * Function which allows to read the index of the next expression to give to the user
+	 * for the current exercise (the one selected by the user)
 	 * exercise => the number of the exercise to deal with
 	 */
 	public int readIndex(int exercise) throws Exception {
@@ -1585,10 +1300,11 @@ public class Controler {
         throw new Exception("This exercise doesn't exist !");
 	}
 	
+	
 	/*
-	 * Function which allows to update the index of the next expression to give to the user (Exercise 1)
+	 * Function which allows to update the index of the next expression to give to the user
+	 * for the current exercise (the one selected by the user)
 	 * exercise => the number of the exercise to deal with
-	 * newIndex => the updated value of the index
 	 */
 	public void updateIndex(int exercise) throws IOException{
 		String content = "";
