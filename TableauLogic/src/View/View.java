@@ -71,6 +71,7 @@ public class View extends JFrame{
 		JLabel picLabel = new JLabel(resizedImage);
 		iconPanel.add(picLabel);
 		
+		
 		//Mid Top Title
 		JPanel titlePanel = new JPanel(new BorderLayout());
 		titlePanel.setLayout(new GridBagLayout());
@@ -79,6 +80,7 @@ public class View extends JFrame{
 		title.setFont(new Font("Serif", Font.PLAIN, 35));
 		title.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titlePanel.add(title);
+		
 		
 		//Right Top Corner
 		JLabel lecturer = new JLabel("Alexander BOLOTOV");
@@ -102,6 +104,7 @@ public class View extends JFrame{
 		rightTopCorner.add(lecture);
 		rightTopCorner.add(helpPanel);
 		rightTopCorner.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		
 		
 		//Top Panel		
 		JPanel topPanel = new JPanel(new BorderLayout());

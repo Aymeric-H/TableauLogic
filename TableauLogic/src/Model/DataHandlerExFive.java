@@ -45,6 +45,7 @@ public class DataHandlerExFive extends DataHandler{
 		String content = "";
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(this.path));
 		String line = bufferedReader.readLine();
+		System.out.println("-" + expression + "-");
 		while (line != null) {
 			String[] data = line.split(" ");
 			if (data[0].equals(expression.replace(" ", ""))) {

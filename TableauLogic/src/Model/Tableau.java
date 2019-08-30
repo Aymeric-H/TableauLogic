@@ -170,7 +170,7 @@ public class Tableau {
 				alreadyIn = true;
 			}
 		}
-		if (!alreadyIn) {
+		if (!alreadyIn && !set.allLiterals()) {
 			this.accessibleSets.put(coordinates, set);
 		}
 	}

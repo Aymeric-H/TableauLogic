@@ -3,6 +3,7 @@ package Controler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -106,10 +107,10 @@ public class Controler {
 		
 		// Setting the menu controllers
 		this.view.exOne.addMouseListener(new ActionExercise(view.exerciseOnePanel));
-		this.view.exTwo.addMouseListener(new ActionExercise(view.exerciseTwoPanel, "ExamplesTruthTable.txt", this.examplesTruthTable));
-		this.view.exThree.addMouseListener(new ActionExercise(view.exerciseThreePanel, "ExamplesTruthTable.txt", this.examplesTruthTable));
-		this.view.exFour.addMouseListener(new ActionExercise(view.exerciseFourPanel, "ExamplesTableau.txt", this.examplesTableau));
-		this.view.exFive.addMouseListener(new ActionExercise(view.exerciseFivePanel, "ExamplesTableau.txt", this.examplesTableau));
+		this.view.exTwo.addMouseListener(new ActionExercise(view.exerciseTwoPanel, "Examples.txt", this.examplesTruthTable));
+		this.view.exThree.addMouseListener(new ActionExercise(view.exerciseThreePanel, "Examples.txt", this.examplesTruthTable));
+		this.view.exFour.addMouseListener(new ActionExercise(view.exerciseFourPanel, "Examples.txt", this.examplesTableau));
+		this.view.exFive.addMouseListener(new ActionExercise(view.exerciseFivePanel, "Examples.txt", this.examplesTableau));
 		
 		
 		// Initialization of all the exercises controllers
@@ -369,7 +370,7 @@ public class Controler {
 				TreeMaker treeMaker = new TreeMaker(expression);
 				JPanel tabView = treeMaker.syntaxAnalysis().getView();
 				BorderLayout layout = (BorderLayout)view.exerciseOnePanel.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JScrollPane) {
 					view.exerciseOnePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
 				tabView.setPreferredSize(new Dimension(1000, 1000));
@@ -511,6 +512,7 @@ public class Controler {
 		
 	}
 	
+	
 	/*
 	 * Allows to display the progress of the user for the second exercise (in a popup)
 	 */
@@ -537,6 +539,7 @@ public class Controler {
 		}
 		
 	}
+	
 	
 	/*
 	 * When the user clicks on the "Deal with it button" it gives the empty truth table of the given input
@@ -736,7 +739,7 @@ public class Controler {
 				}
 				TableauView<String> tabView = tableau.getView();				
 				BorderLayout layout = (BorderLayout)view.exerciseFourPanel.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JScrollPane) {
 					view.exerciseFourPanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
 				JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -787,6 +790,12 @@ public class Controler {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			String expressions = view.exerciseFivePanel.inputExpressions.getText();
+			// If the expression given by the user has no " T [ ... ] " nor " F [ ... ] " we assume it's " T [ ... ] "
+			// Also if the user decides to get an input expression from the program (by clicking the provided button
+			// we also need to assume it's " T [ ... ] "
+			if (expressions.charAt(2) != '[') {
+				expressions = "T [ " + expressions + " ]";
+			}
 			try {
 				tableau = new Tableau();
 				tableau.setRoot(new Set(expressions));
@@ -795,7 +804,11 @@ public class Controler {
 				// update the index for this exercise
 				if (tableau.accessibleSets.isEmpty()) {
 					int indexOfExamples = readIndex(5);
-					if (!examplesTableau.isEmpty() && indexOfExamples < examplesTableau.size() && examplesTableau.get(indexOfExamples).equals(expressions)){
+					String example = examplesTableau.get(indexOfExamples);
+					if (example.charAt(2) != '[') {
+						example = "T [ " + example + " ]";
+					}
+					if (indexOfExamples < examplesTableau.size() && example.equals(expressions)){
 						updateIndex(5);
 					}
 				}
@@ -803,7 +816,7 @@ public class Controler {
 				tabView.addMouseListener(new SetSelected());
 				
 				BorderLayout layout = (BorderLayout)view.exerciseFivePanel.getLayout();
-				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JPanel) {
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JScrollPane) {
 					view.exerciseFivePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 				}
 		        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -975,7 +988,13 @@ public class Controler {
 				Set simulatedSet = tableau.simulateRuleForThisSet(coords, index);
 				// The substring method is used to get only the expression (the root) and not what it added by
 				// the toString() method of the Set class
-				String expression = tableau.getRoot().toString().substring(1,tableau.getRoot().toString().length() - 4);
+				String expression = view.exerciseFivePanel.inputExpressions.getText();
+				// If the expression given by the user has no " T [ ... ] " nor " F [ ... ] " we assume it's " T [ ... ] "
+				// Also if the user decides to get an input expression from the program (by clicking the provided button
+				// we also need to assume it's " T [ ... ] "
+				if (expression.charAt(2) != '[') {
+					expression = "T [ " + expression + " ]";
+				}
 				boolean checked = false;
 				// We check the answer of the user
 				if (simulatedSet.getSecond() == null) {
@@ -998,9 +1017,26 @@ public class Controler {
 					tableau.applyRuleForThisSet(this.coords, this.index);
 					tableau.accessibleSets.remove(this.coords);
 					if (tableau.accessibleSets.isEmpty()) {
-						updateIndex(5);
+						int indexOfExamples = readIndex(5);
+						String example = examplesTableau.get(indexOfExamples);
+						if (example.charAt(2) != '[') {
+							example = "T [ " + example + " ]";
+						}
+						if (indexOfExamples < examplesTableau.size() && example.equals(expression)){
+							updateIndex(5);
+						}
 					}
 					this.popup.dispose();
+					
+					// We need to do this to update the Scroll Panel in order to get scrollbars when needed
+					// If we don't do that the panel never updates itself and we never get scrollbars
+					TableauView<String> tabView = tableau.getView();				
+					BorderLayout layout = (BorderLayout)view.exerciseFivePanel.getLayout();
+					if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JScrollPane) {
+						view.exerciseFivePanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+					}
+					JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					view.exerciseFivePanel.add(scrollPane, BorderLayout.CENTER);
 				}
 				else {
 					dataHandlerExFive.update(expression, 1, 1);
@@ -1219,6 +1255,17 @@ public class Controler {
 			try {
 				tableau.applyRule();
 				tableau.updateContradictions();
+				
+				// We need to do this to update the Scroll Panel in order to get scrollbars when needed
+				// If we don't do that the panel never updates itself and we never get scrollbars
+				TableauView<String> tabView = tableau.getView();				
+				BorderLayout layout = (BorderLayout)view.exerciseFourPanel.getLayout();
+				if (layout.getLayoutComponent(BorderLayout.CENTER) instanceof JScrollPane) {
+					view.exerciseFourPanel.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+				}
+				JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				view.exerciseFourPanel.add(scrollPane, BorderLayout.CENTER);
+				
 				view.revalidate();
 				view.repaint();
 				if (!tableau.remainingRules()) {
@@ -1264,7 +1311,7 @@ public class Controler {
 			tabView.addMouseListener(new SetSelected());
 			tabView.setPreferredSize(new Dimension(1400, 1000));
 	        JScrollPane scrollPane = new JScrollPane(tabView, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			view.exerciseFivePanel.add(scrollPane, BorderLayout.CENTER);
+	        view.exerciseFivePanel.add(scrollPane, BorderLayout.CENTER);
 			view.revalidate();
 			view.repaint();
 		}
